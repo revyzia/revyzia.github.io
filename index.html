@@ -61,14 +61,17 @@
   .erreur.visible { display:block; }
 
   #tableau { max-width:720px; margin:0 auto; padding:26px 20px 60px; }
+  #tableau .carte { border-radius:20px; padding:18px; }
   .barre { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
-  .profil { display:flex; align-items:center; gap:14px; margin-bottom:14px; }
-  .avatar { width:56px; height:56px; border-radius:50%; background:var(--teinte); object-fit:cover; }
+  .profil-carte { display:flex; align-items:center; gap:16px; }
+  .profil-texte { min-width:0; }
+  .profil-nom { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .avatar { width:56px; height:56px; border-radius:50%; background:var(--teinte); object-fit:cover; flex-shrink:0; }
   .nom { font-size:20px; font-weight:700; }
   .mail { font-size:14px; color:var(--encre-doux); word-break:break-all; }
   .etiquette { display:inline-block; padding:5px 11px; border-radius:9px; background:var(--teinte);
                color:var(--accent); font-size:12.5px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; }
-  .grille { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin:20px 0; }
+  .grille { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin:16px 0 0; }
   .stat { background:var(--surface); border:1px solid var(--ligne); border-radius:16px; padding:16px; }
   .stat .val { font-size:26px; font-weight:700; }
   .stat .lib { font-size:13px; color:var(--encre-doux); }
@@ -143,14 +146,16 @@
     <button class="btn sobre" id="btnDéconnexion">Déconnexion</button>
   </div>
 
-  <div class="profil">
+  <div class="carte profil-carte">
     <img class="avatar" id="avatar" alt="">
-    <div>
-      <div class="nom" id="nom"></div>
+    <div class="profil-texte">
+      <div class="profil-nom">
+        <span class="nom" id="nom"></span>
+        <span class="etiquette" id="role"></span>
+      </div>
       <div class="mail" id="mail"></div>
     </div>
   </div>
-  <span class="etiquette" id="role"></span>
 
   <div class="grille">
     <div class="stat"><div class="val" id="xp">0</div><div class="lib">XP</div></div>
