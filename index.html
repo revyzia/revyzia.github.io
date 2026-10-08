@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Revyzia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent:#0E7490; --accent-clair:#7FD3E0; --accent-sombre:#0A5568;
+    --encre:#0C181C; --encre-doux:#5C6C71;
+    --papier:#EDF3F5; --teinte:#D2E6EC; --surface:#FFFFFF;
+    --ligne:rgba(12,24,28,.12);
+    --rouge:#B3261E; --vert:#0F7F4F;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --encre:#F2F7F8; --encre-doux:#9BAEB3;
+      --papier:#06161B; --teinte:#123038; --surface:#0C2229;
+      --ligne:rgba(255,255,255,.12);
+    }
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; min-height:100vh;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+    background:var(--papier); color:var(--encre);
+    font-family:"Instrument Sans",system-ui,-apple-system,sans-serif; line-height:1.5;
+  }
+  h1,h2,.marque { font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif; }
+  .ecran { display:none; }
+  .ecran.actif { display:block; }
+
+  /* Connexion */
+  #connexion { min-height:100vh; display:flex; flex-direction:column; justify-content:space-between;
+               max-width:430px; margin:0 auto; padding:40px 26px 34px; }
+  .logo-ligne { display:flex; align-items:center; gap:11px; }
+  .marque { font-size:24px; font-weight:800; letter-spacing:-.5px; }
+  .titre { margin:0 0 14px; font-size:40px; line-height:1.05; font-weight:800; letter-spacing:-1.1px; }
+  .accroche { margin:0; font-size:16px; color:var(--encre-doux); }
+  .carte { background:var(--surface); border:1px solid var(--ligne); border-radius:26px;
+           padding:22px; box-shadow:0 18px 44px rgba(12,40,50,.08); }
+  .btn { display:flex; align-items:center; justify-content:center; gap:10px; width:100%;
+         height:54px; border:none; border-radius:15px; background:var(--accent); color:#fff;
+         font-family:inherit; font-size:16px; font-weight:600; cursor:pointer; }
+  .btn:hover { background:var(--accent-sombre); }
+  .btn:disabled { opacity:.55; cursor:progress; }
+  .btn.sobre { background:transparent; color:var(--encre); border:1px solid var(--ligne); height:44px; font-size:14px; }
+  .btn.sobre:hover { background:var(--teinte); }
+  .sous-btn { margin:14px 0 0; text-align:center; font-size:13.5px; color:var(--encre-doux); }
+  .points { display:flex; flex-direction:column; gap:12px; }
+  .point { display:flex; align-items:center; gap:11px; font-size:14px; color:var(--encre-doux); }
+  .erreur { margin-top:14px; padding:12px 14px; border-radius:12px;
+            background:rgba(179,38,30,.1); color:var(--rouge); font-size:13.5px; display:none; }
+  .erreur.visible { display:block; }
+
+  /* Tableau de bord */
+  #tableau { max-width:720px; margin:0 auto; padding:26px 20px 60px; }
+  .barre { display:flex; align-items:center; justify-content:space-between; margin-bottom:26px; }
+  .profil { display:flex; align-items:center; gap:14px; margin-bottom:22px; }
+  .avatar { width:56px; height:56px; border-radius:50%; background:var(--teinte); object-fit:cover; }
+  .nom { font-size:20px; font-weight:700; }
+  .mail { font-size:14px; color:var(--encre-doux); word-break:break-all; }
+  .etiquette { display:inline-block; padding:5px 11px; border-radius:9px; background:var(--teinte);
+               color:var(--accent); font-size:12.5px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; }
+  .grille { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:20px 0; }
+  .stat { background:var(--surface); border:1px solid var(--ligne); border-radius:16px; padding:16px; }
+  .stat .val { font-family:"Bricolage Grotesque",sans-serif; font-size:26px; font-weight:700; }
+  .stat .lib { font-size:13px; color:var(--encre-doux); }
+  .note { font-size:13.5px; color:var(--encre-doux); margin-top:22px; }
+  .chargement { max-width:430px; margin:0 auto; padding:80px 26px; text-align:center; color:var(--encre-doux); }
+</style>
+</head>
+<body>
+
+<div id="chargement" class="chargement">Chargement...</div>
+
+<!-- ECRAN DE CONNEXION -->
+<section id="connexion" class="ecran">
+  <div>
+    <div class="logo-ligne">
+      <svg width="38" height="38" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <rect x="6" y="9" width="24" height="17" rx="5" fill="#9AD2DE" transform="rotate(-9 18 17)"/>
+        <rect x="10" y="14" width="24" height="17" rx="5" fill="#0E7490"/>
+        <path d="M17 22.5l3 3 6.5-6.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="marque">Revyzia</span>
+    </div>
+    <div style="margin-top:72px">
+      <h1 class="titre">Tes cours,<br>en révisions.</h1>
+      <p class="accroche">Les vrais cours de tes profs, transformés en fiches, QCM et exercices pour toi et ta classe.</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="carte">
+      <button class="btn" id="btnConnexion">
+        Continuer avec Google
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+      </button>
+      <p class="sous-btn">Avec l'adresse mail de ton établissement.</p>
+      <div class="erreur" id="erreur"></div>
+    </div>
+    <div class="points" style="margin-top:24px">
+      <div class="point"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E7490" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Ta classe et tes groupes reconnus tout seuls</div>
+      <div class="point"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E7490" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Réservé aux élèves et aux profs de l'établissement</div>
+      <div class="point"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E7490" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Gratuit, sans publicité</div>
+    </div>
+  </div>
+</section>
+
+<!-- TABLEAU DE BORD -->
+<section id="tableau" class="ecran">
+  <div class="barre">
+    <div class="logo-ligne">
+      <svg width="26" height="26" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <rect x="6" y="9" width="24" height="17" rx="5" fill="#9AD2DE" transform="rotate(-9 18 17)"/>
+        <rect x="10" y="14" width="24" height="17" rx="5" fill="#0E7490"/>
+        <path d="M17 22.5l3 3 6.5-6.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="marque" style="font-size:18px">Revyzia</span>
+    </div>
+    <button class="btn sobre" style="width:auto;padding:0 14px" id="btnDeconnexion">Déconnexion</button>
+  </div>
+
+  <div class="profil">
+    <img class="avatar" id="avatar" alt="">
+    <div>
+      <div class="nom" id="nom"></div>
+      <div class="mail" id="mail"></div>
+    </div>
+  </div>
+  <span class="etiquette" id="role"></span>
+
+  <div class="grille">
+    <div class="stat"><div class="val" id="xp">0</div><div class="lib">XP</div></div>
+    <div class="stat"><div class="val" id="serie">0</div><div class="lib">Jours de série</div></div>
+    <div class="stat"><div class="val" id="classe">?</div><div class="lib">Classe</div></div>
+    <div class="stat"><div class="val" id="groupes">0</div><div class="lib">Groupes</div></div>
+  </div>
+
+  <p class="note">Fiche créée dans Firestore. Prochaine étape : lire Classroom pour remplir la classe et les groupes.</p>
+</section>
+
+<script type="module">
+// --- Chargement du SDK Firebase, jsdelivr en premier (gstatic est souvent bloque a Hong Kong)
+const VERSION = "11.3.1";
+const SOURCES = [
+  { app:`https://cdn.jsdelivr.net/npm/firebase@${VERSION}/app/+esm`,
+    auth:`https://cdn.jsdelivr.net/npm/firebase@${VERSION}/auth/+esm`,
+    db:`https://cdn.jsdelivr.net/npm/firebase@${VERSION}/firestore/+esm` },
+  { app:`https://www.gstatic.com/firebasejs/${VERSION}/firebase-app.js`,
+    auth:`https://www.gstatic.com/firebasejs/${VERSION}/firebase-auth.js`,
+    db:`https://www.gstatic.com/firebasejs/${VERSION}/firebase-firestore.js` }
+];
+
+async function chargerSdk() {
+  let derniere;
+  for (const src of SOURCES) {
+    try {
+      const [app, auth, db] = await Promise.all([import(src.app), import(src.auth), import(src.db)]);
+      console.log("[Revyzia] SDK charge depuis", src.app);
+      return { app, auth, db };
+    } catch (e) { derniere = e; console.warn("[Revyzia] source indisponible", src.app, e); }
+  }
+  throw derniere;
+}
+
+const CONFIG = {
+  apiKey: "AIzaSyDRUVa_1o3Mbz6Gyn8SuQlbjYyV5RNVKGY",
+  authDomain: "revyzia-app.firebaseapp.com",
+  projectId: "revyzia-app",
+  storageBucket: "revyzia-app.firebasestorage.app",
+  messagingSenderId: "841690966708",
+  appId: "1:841690966708:web:412fd2b2a48686dc9785e1"
+};
+
+const $ = id => document.getElementById(id);
+function montrer(ecran) {
+  $("chargement").style.display = "none";
+  document.querySelectorAll(".ecran").forEach(s => s.classList.remove("actif"));
+  if (ecran) $(ecran).classList.add("actif");
+}
+function erreur(msg) {
+  const e = $("erreur");
+  e.textContent = msg; e.classList.add("visible");
+}
+
+let sdk, auth, firestore, fonctions;
+
+try {
+  sdk = await chargerSdk();
+  const app = sdk.app.initializeApp(CONFIG);
+  auth = sdk.auth.getAuth(app);
+  firestore = sdk.db.getFirestore(app);
+  fonctions = sdk.db;
+} catch (e) {
+  $("chargement").textContent = "Impossible de charger Revyzia. Vérifie ta connexion.";
+  console.error("[Revyzia] echec du chargement", e);
+}
+
+if (auth) {
+  // --- Connexion
+  $("btnConnexion").addEventListener("click", async () => {
+    const btn = $("btnConnexion");
+    btn.disabled = true;
+    $("erreur").classList.remove("visible");
+    try {
+      const fournisseur = new sdk.auth.GoogleAuthProvider();
+      // autorisations demandees des maintenant, pour ne pas redemander a l'etape Classroom
+      fournisseur.addScope("https://www.googleapis.com/auth/classroom.courses.readonly");
+      fournisseur.addScope("https://www.googleapis.com/auth/classroom.announcements.readonly");
+      fournisseur.addScope("https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly");
+      fournisseur.addScope("https://www.googleapis.com/auth/drive.readonly");
+      fournisseur.setCustomParameters({ prompt: "select_account" });
+      await sdk.auth.signInWithPopup(auth, fournisseur);
+    } catch (e) {
+      console.error("[Revyzia] echec de connexion", e);
+      const codes = {
+        "auth/popup-blocked": "La fenêtre Google a été bloquée par le navigateur.",
+        "auth/popup-closed-by-user": "Fenêtre fermée avant la fin de la connexion.",
+        "auth/unauthorized-domain": "Ce domaine n'est pas autorisé dans Firebase, section Authentication, Paramètres, Domaines autorisés.",
+        "auth/operation-not-allowed": "Le fournisseur Google n'est pas activé dans Firebase."
+      };
+      erreur(codes[e.code] || ("Connexion impossible : " + (e.code || e.message)));
+    } finally { btn.disabled = false; }
+  });
+
+  $("btnDeconnexion").addEventListener("click", () => sdk.auth.signOut(auth));
+
+  // --- Etat de connexion
+  sdk.auth.onAuthStateChanged(auth, async (user) => {
+    if (!user) { montrer("connexion"); return; }
+    try {
+      const fiche = await chargerOuCreerFiche(user);
+      afficher(user, fiche);
+      montrer("tableau");
+    } catch (e) {
+      console.error("[Revyzia] echec de la fiche utilisateur", e);
+      montrer("connexion");
+      erreur("Connecté, mais impossible de lire ta fiche. Vérifie les règles Firestore. (" + (e.code || e.message) + ")");
+      await sdk.auth.signOut(auth);
+    }
+  });
+}
+
+async function chargerOuCreerFiche(user) {
+  const { doc, getDoc, setDoc, serverTimestamp } = fonctions;
+  const ref = doc(firestore, "users", user.uid);
+  const instantane = await getDoc(ref);
+
+  if (instantane.exists()) return instantane.data();
+
+  const nouvelle = {
+    email: user.email || "",
+    nom: user.displayName || "",
+    photo: user.photoURL || "",
+    role: "eleve",          // jamais modifiable depuis le navigateur
+    etablissement: "lfihk",
+    classe: "",
+    groupes: [],
+    reglages: { theme: "auto", couleur: "lagon", effet: "verre" },
+    xp: 0,
+    serie: 0,
+    derniereRevision: "",
+    creele: serverTimestamp()
+  };
+  await setDoc(ref, nouvelle);
+  console.log("[Revyzia] fiche creee pour", user.uid);
+  return nouvelle;
+}
+
+function afficher(user, fiche) {
+  $("avatar").src = fiche.photo || user.photoURL || "";
+  $("nom").textContent = fiche.nom || user.displayName || "Sans nom";
+  $("mail").textContent = fiche.email || user.email || "";
+  $("role").textContent = fiche.role || "eleve";
+  $("xp").textContent = fiche.xp ?? 0;
+  $("serie").textContent = fiche.serie ?? 0;
+  $("classe").textContent = fiche.classe || "?";
+  $("groupes").textContent = (fiche.groupes || []).length;
+}
+</script>
+</body>
+</html>
