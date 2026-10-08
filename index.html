@@ -244,6 +244,12 @@
     firebase.initializeApp(CONFIG);
     auth = firebase.auth();
     db = firebase.firestore();
+    try {
+      db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
+      console.log("[Revyzia] Firestore en detection automatique du transport");
+    } catch (e) {
+      console.warn("[Revyzia] reglage Firestore refuse", e);
+    }
     demarrer();
   }).catch(function (e) {
     console.error("[Revyzia] echec du chargement du SDK", e);
@@ -276,21 +282,41 @@
     $("btnDéconnexion").addEventListener("click", function () { auth.signOut(); });
 
     auth.onAuthStateChanged(function (user) {
+      console.log("[Revyzia] etat de connexion :", user ? user.uid : "personne");
       if (!user) { montrer("connexion"); return; }
-      ficheUtilisateur(user).then(function (fiche) {
+      $("chargement").textContent = "Connexion en cours...";
+      $("chargement").style.display = "flex";
+      avecDelai(ficheUtilisateur(user), 12000).then(function (fiche) {
         afficher(user, fiche);
         montrer("tableau");
       }).catch(function (e) {
         console.error("[Revyzia] echec de la fiche utilisateur", e);
         montrer("connexion");
-        erreur("Connecté, mais impossible de lire ta fiche. Vérifie les règles Firestore. (" + (e.code || e.message) + ")");
+        if (e.message === "delai") {
+          erreur("Connecté, mais la base ne répond pas. C'est souvent le réseau qui bloque Firestore. Ouvre la console (F12) et envoie-moi les lignes [Revyzia].");
+        } else if (e.code === "permission-denied") {
+          erreur("Connecté, mais la base refuse l'accès. Les règles Firestore ne sont pas celles attendues.");
+        } else {
+          erreur("Connecté, mais impossible de lire ta fiche : " + (e.code || e.message));
+        }
       });
     });
   }
 
+  function avecDelai(promesse, millisecondes) {
+    return Promise.race([
+      promesse,
+      new Promise(function (_, ko) {
+        setTimeout(function () { ko(new Error("delai")); }, millisecondes);
+      })
+    ]);
+  }
+
   function ficheUtilisateur(user) {
+    console.log("[Revyzia] lecture de la fiche", user.uid);
     var ref = db.collection("users").doc(user.uid);
     return ref.get().then(function (instantane) {
+      console.log("[Revyzia] fiche lue, existe :", instantane.exists);
       if (instantane.exists) return instantane.data();
       var nouvelle = {
         email: user.email || "",
