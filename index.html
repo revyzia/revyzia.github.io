@@ -192,11 +192,15 @@
 
   function $(id) { return document.getElementById(id); }
 
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+
   function montrer(ecran) {
     $("chargement").style.display = "none";
     var ecrans = document.querySelectorAll(".ecran");
     for (var i = 0; i < ecrans.length; i++) ecrans[i].classList.remove("actif");
     if (ecran) $(ecran).classList.add("actif");
+    // le navigateur garde la position de defilement d'un ecran a l'autre : on remonte en haut
+    window.scrollTo(0, 0);
   }
 
   function erreur(message) {
