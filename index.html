@@ -40,6 +40,8 @@
                display:flex; flex-direction:column; justify-content:space-between; gap:48px; }
   .logo-ligne { display:flex; align-items:center; gap:11px; }
   .marque { font-size:24px; font-weight:800; letter-spacing:-.5px; }
+  .version { font-size:11px; font-weight:600; color:var(--encre-doux);
+             border:1px solid var(--ligne); border-radius:6px; padding:2px 6px; }
   .titre { margin:0 0 14px; font-size:40px; line-height:1.05; font-weight:800; letter-spacing:-1.1px; }
   .accroche { margin:0; font-size:16px; color:var(--encre-doux); }
   .carte { background:var(--surface); border:1px solid var(--ligne); border-radius:26px; padding:22px; }
@@ -76,6 +78,15 @@
   .stat .val { font-size:26px; font-weight:700; }
   .stat .lib { font-size:13px; color:var(--encre-doux); }
   .note { font-size:13.5px; color:var(--encre-doux); margin-top:22px; }
+  .bloc-cours { margin-top:30px; }
+  .bloc-titre { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; }
+  .sur-titre { font-size:12.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--encre-doux); }
+  .compteur { font-size:13px; color:var(--encre-doux); }
+  .cours { background:var(--surface); border:1px solid var(--ligne); border-radius:14px;
+           padding:13px 15px; margin-bottom:8px; }
+  .cours-nom { font-size:15px; font-weight:600; }
+  .cours-detail { font-size:12.5px; color:var(--encre-doux); margin-top:2px; }
+  .vide { font-size:14px; color:var(--encre-doux); }
 
   @media (min-width:900px) {
     #connexion {
@@ -102,6 +113,7 @@
         <path d="M17 22.5l3 3 6.5-6.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span class="marque">Revyzia</span>
+      <span class="version">v0.3</span>
     </div>
     <div style="margin-top:56px">
       <h1 class="titre">Tes cours,<br>en révisions.</h1>
@@ -142,8 +154,9 @@
         <path d="M17 22.5l3 3 6.5-6.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span class="marque" style="font-size:18px">Revyzia</span>
+      <span class="version">v0.3</span>
     </div>
-    <button class="btn sobre" id="btnDéconnexion">Déconnexion</button>
+    <button class="btn sobre" id="btnDeconnexion">Déconnexion</button>
   </div>
 
   <div class="carte profil-carte">
@@ -164,7 +177,15 @@
     <div class="stat"><div class="val" id="groupes">0</div><div class="lib">Groupes</div></div>
   </div>
 
-  <p class="note">Fiche enregistrée dans Firestore. Prochaine étape : lire Classroom pour remplir la classe et les groupes.</p>
+  <div class="bloc-cours">
+    <div class="bloc-titre">
+      <span class="sur-titre">Tes cours Classroom</span>
+      <span class="compteur" id="compteurCours"></span>
+    </div>
+    <div id="listeCours"></div>
+  </div>
+
+  <p class="note">Lecture seule pour l'instant. Prochaine étape : relier ces cours à tes groupes et à tes matières.</p>
 </section>
 
 <script>
@@ -276,7 +297,13 @@
       for (var i = 0; i < PORTEES.length; i++) fournisseur.addScope(PORTEES[i]);
       fournisseur.setCustomParameters({ prompt: "select_account" });
 
-      auth.signInWithPopup(fournisseur).catch(function (e) {
+      auth.signInWithPopup(fournisseur).then(function (resultat) {
+        var jeton = resultat && resultat.credential && resultat.credential.accessToken;
+        if (jeton) {
+          sessionStorage.setItem("rvz_jeton", jeton);
+          console.log("[Revyzia] jeton Google obtenu");
+        }
+      }).catch(function (e) {
         console.error("[Revyzia] echec de connexion", e);
         var messages = {
           "auth/popup-blocked": "La fenêtre Google a été bloquée par le navigateur.",
@@ -288,7 +315,7 @@
       }).then(function () { btn.disabled = false; });
     });
 
-    $("btnDéconnexion").addEventListener("click", function () { auth.signOut(); });
+    $("btnDeconnexion").addEventListener("click", function () { auth.signOut(); });
 
     auth.onAuthStateChanged(function (user) {
       console.log("[Revyzia] etat de connexion :", user ? user.uid : "personne");
@@ -298,6 +325,7 @@
       avecDelai(ficheUtilisateur(user), 12000).then(function (fiche) {
         afficher(user, fiche);
         montrer("tableau");
+        lireClassroom();
       }).catch(function (e) {
         console.error("[Revyzia] echec de la fiche utilisateur", e);
         montrer("connexion");
@@ -345,6 +373,53 @@
         console.log("[Revyzia] fiche creee");
         return nouvelle;
       });
+    });
+  }
+
+  function lireClassroom() {
+    var liste = $("listeCours");
+    var jeton = sessionStorage.getItem("rvz_jeton");
+    if (!jeton) {
+      liste.innerHTML = '<p class="vide">Reconnecte-toi pour lire tes cours Classroom. Le jeton Google ne survit pas à la fermeture de l\'onglet.</p>';
+      return;
+    }
+    liste.innerHTML = '<p class="vide">Lecture de Classroom...</p>';
+
+    fetch("https://classroom.googleapis.com/v1/courses?courseStates=ACTIVE&pageSize=50", {
+      headers: { Authorization: "Bearer " + jeton }
+    }).then(function (r) {
+      if (r.status === 401) { sessionStorage.removeItem("rvz_jeton"); throw new Error("jeton expiré"); }
+      if (!r.ok) throw new Error("reponse " + r.status);
+      return r.json();
+    }).then(function (donnees) {
+      var cours = donnees.courses || [];
+      console.log("[Revyzia] cours Classroom :", cours.length, cours);
+      $("compteurCours").textContent = cours.length + " cours";
+      if (!cours.length) {
+        liste.innerHTML = '<p class="vide">Aucun cours actif trouvé.</p>';
+        return;
+      }
+      liste.innerHTML = "";
+      cours.forEach(function (c) {
+        var bloc = document.createElement("div");
+        bloc.className = "cours";
+        var nom = document.createElement("div");
+        nom.className = "cours-nom";
+        nom.textContent = c.name || "(sans nom)";
+        var detail = document.createElement("div");
+        detail.className = "cours-detail";
+        var bouts = [];
+        if (c.section) bouts.push(c.section);
+        if (c.room) bouts.push("salle " + c.room);
+        bouts.push("id " + c.id);
+        detail.textContent = bouts.join(" · ");
+        bloc.appendChild(nom);
+        bloc.appendChild(detail);
+        liste.appendChild(bloc);
+      });
+    }).catch(function (e) {
+      console.error("[Revyzia] echec Classroom", e);
+      liste.innerHTML = '<p class="vide">Classroom illisible : ' + (e.message || "erreur") + '. Déconnecte-toi et reconnecte-toi.</p>';
     });
   }
 
