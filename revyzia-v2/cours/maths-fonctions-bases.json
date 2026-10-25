@@ -1,0 +1,114 @@
+{
+  "id": "maths-fonctions-bases",
+  "matiere": "maths",
+  "matiereNom": "Mathématiques",
+  "titre": "Fonctions, les bases",
+  "sousTitre": "Image, antécédent, lecture graphique et tableau de variations",
+  "niveau": "2nde",
+  "statut": "manuel",
+  "version": 1,
+  "sections": [
+    {
+      "id": "notion",
+      "titre": "La notion de fonction",
+      "cours": [
+        {
+          "type": "paragraphe",
+          "texte": "Une fonction est un procédé qui, à un nombre, associe un seul autre nombre. On note f(x) le nombre associé à x par la fonction f."
+        },
+        {
+          "type": "definition",
+          "titre": "Image et antécédent",
+          "texte": "Si f(3) = 7, on dit que 7 est l'image de 3 par f, et que 3 est un antécédent de 7 par f."
+        },
+        {
+          "type": "piege",
+          "titre": "Le piège classique",
+          "texte": "Un nombre a toujours une seule image, mais il peut avoir plusieurs antécédents, ou aucun. Dire l'antécédent est donc souvent faux, il faut dire un antécédent."
+        },
+        {
+          "type": "exemple",
+          "titre": "Lecture d'un tableau",
+          "texte": "Pour le tableau x = -2, 0, 3 et f(x) = 5, 1, 5 : l'image de 0 est 1, et 5 a deux antécédents, -2 et 3."
+        }
+      ],
+      "flashcards": [
+        { "id": "f1", "recto": "Que signifie f(4) = 9 ?", "verso": "L'image de 4 par f est 9, et 4 est un antécédent de 9." },
+        { "id": "f2", "recto": "Combien d'images un nombre peut-il avoir ?", "verso": "Une seule. C'est la définition même d'une fonction." },
+        { "id": "f3", "recto": "Combien d'antécédents un nombre peut-il avoir ?", "verso": "Zéro, un, ou plusieurs." },
+        { "id": "f4", "recto": "Comment lire graphiquement l'image de 2 ?", "verso": "On part de 2 sur l'axe des abscisses, on monte jusqu'à la courbe, on lit l'ordonnée." }
+      ],
+      "qcm": [
+        {
+          "id": "q1",
+          "question": "Si g(-1) = 4, laquelle de ces phrases est correcte ?",
+          "options": ["4 est l'image de -1", "-1 est l'image de 4", "4 est l'antécédent de -1", "g(4) = -1"],
+          "bonne": 0,
+          "explication": "Le nombre entre parenthèses est l'antécédent, le résultat est l'image."
+        },
+        {
+          "id": "q2",
+          "question": "Une courbe coupe l'axe des abscisses en x = 2 et x = 5. Que peut-on en déduire ?",
+          "options": ["0 a deux antécédents, 2 et 5", "2 et 5 ont pour image 2 et 5", "La fonction n'est pas définie", "0 a pour image 2"],
+          "bonne": 0,
+          "explication": "Couper l'axe des abscisses signifie que l'ordonnée vaut 0, donc f(2) = 0 et f(5) = 0."
+        },
+        {
+          "id": "q3",
+          "question": "Peut-on avoir f(3) = 5 et f(3) = 8 pour une même fonction f ?",
+          "options": ["Non, jamais", "Oui, si la courbe se croise", "Oui, si 3 est un antécédent double", "Seulement si f est une droite"],
+          "bonne": 0,
+          "explication": "Un nombre a une seule image. Sinon ce n'est pas une fonction."
+        }
+      ],
+      "exercices": [
+        {
+          "id": "e1",
+          "enonce": "Soit f la fonction définie par f(x) = 2x - 3. Calculer l'image de 4, puis déterminer un antécédent de 7.",
+          "correction": "Image de 4 : f(4) = 2 x 4 - 3 = 5. Antécédent de 7 : on résout 2x - 3 = 7, donc 2x = 10 et x = 5."
+        }
+      ]
+    },
+    {
+      "id": "variations",
+      "titre": "Variations",
+      "cours": [
+        {
+          "type": "definition",
+          "titre": "Croissante et décroissante",
+          "texte": "Une fonction est croissante sur un intervalle si elle conserve l'ordre : quand x augmente, f(x) augmente. Elle est décroissante si elle inverse l'ordre."
+        },
+        {
+          "type": "paragraphe",
+          "texte": "Le tableau de variations résume ce comportement avec des flèches, et indique les extremums aux endroits où la fonction change de sens."
+        },
+        {
+          "type": "piege",
+          "titre": "Attention à l'intervalle",
+          "texte": "Une fonction n'est pas croissante dans l'absolu, elle est croissante sur un intervalle donné. Il faut toujours préciser lequel."
+        }
+      ],
+      "flashcards": [
+        { "id": "f5", "recto": "Que veut dire croissante sur un intervalle ?", "verso": "Quand x augmente, f(x) augmente aussi sur cet intervalle." },
+        { "id": "f6", "recto": "Qu'est-ce qu'un maximum ?", "verso": "La plus grande valeur prise par la fonction sur l'intervalle étudié." }
+      ],
+      "qcm": [
+        {
+          "id": "q4",
+          "question": "Une fonction décroissante sur [0 ; 5] vérifie f(1) = 8. Que peut-on dire de f(4) ?",
+          "options": ["f(4) est inférieur à 8", "f(4) est supérieur à 8", "f(4) = 8", "On ne peut rien dire"],
+          "bonne": 0,
+          "explication": "Décroissante signifie que si x augmente, f(x) diminue. Comme 4 est supérieur à 1, f(4) est inférieur à f(1)."
+        },
+        {
+          "id": "q5",
+          "question": "Sur un tableau de variations, une flèche vers le bas signifie :",
+          "options": ["La fonction décroît", "La fonction est négative", "La fonction s'annule", "La courbe descend sous l'axe"],
+          "bonne": 0,
+          "explication": "La flèche indique le sens de variation, pas le signe de la fonction."
+        }
+      ],
+      "exercices": []
+    }
+  ]
+}

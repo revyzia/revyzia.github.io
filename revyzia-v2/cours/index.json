@@ -1,0 +1,48 @@
+{
+  "anneeScolaire": "2026-2027",
+  "matieres": [
+    {
+      "id": "maths",
+      "nom": "Mathématiques",
+      "initiale": "M",
+      "chapitres": [
+        {
+          "id": "maths-fonctions-bases",
+          "titre": "Fonctions, les bases",
+          "sousTitre": "Image, antécédent, variations",
+          "fichier": "cours/maths-fonctions-bases.json"
+        }
+      ]
+    },
+    {
+      "id": "histoire",
+      "nom": "Histoire-Géographie",
+      "initiale": "H",
+      "chapitres": []
+    },
+    {
+      "id": "svt",
+      "nom": "SVT",
+      "initiale": "S",
+      "chapitres": []
+    },
+    {
+      "id": "francais",
+      "nom": "Français",
+      "initiale": "F",
+      "chapitres": []
+    },
+    {
+      "id": "physique",
+      "nom": "Physique-Chimie",
+      "initiale": "P",
+      "chapitres": []
+    },
+    {
+      "id": "ses",
+      "nom": "SES",
+      "initiale": "E",
+      "chapitres": []
+    }
+  ]
+}
