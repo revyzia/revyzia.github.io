@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Revyzia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent:#0E7490; --accent-clair:#7FD3E0; --accent-sombre:#0A5568;
+    --encre:#0C181C; --encre-doux:#5C6C71;
+    --papier:#EDF3F5; --teinte:#D2E6EC; --surface:#FFFFFF;
+    --ligne:rgba(12,24,28,.12); --rouge:#B3261E;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --encre:#F2F7F8; --encre-doux:#9BAEB3;
+      --papier:#06161B; --teinte:#123038; --surface:#0C2229;
+      --ligne:rgba(255,255,255,.14);
+    }
+  }
+  * { box-sizing:border-box; }
+  html, body { height:100%; }
+  body {
+    margin:0;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+    background:var(--papier); color:var(--encre);
+    font-family:"Instrument Sans",system-ui,-apple-system,sans-serif; line-height:1.5;
+  }
+  h1,.marque,.val { font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif; }
+  .ecran { display:none; }
+  .ecran.actif { display:block; }
+
+  #chargement { min-height:100vh; display:flex; align-items:center; justify-content:center;
+                padding:40px 26px; text-align:center; color:var(--encre-doux); font-size:15px; }
+
+  #connexion { min-height:100vh; max-width:460px; margin:0 auto; padding:46px 26px 38px; gap:48px; }
+  #connexion.actif { display:flex; flex-direction:column; justify-content:space-between; }
+  .logo-ligne { display:flex; align-items:center; gap:11px; }
+  .marque { font-size:24px; font-weight:800; letter-spacing:-.5px; }
+  .version { font-size:11px; font-weight:600; color:var(--encre-doux);
+             border:1px solid var(--ligne); border-radius:6px; padding:2px 6px; }
+  .titre { margin:0 0 14px; font-size:40px; line-height:1.05; font-weight:800; letter-spacing:-1.1px; }
+  .accroche { margin:0; font-size:16px; color:var(--encre-doux); }
+  .carte { background:var(--surface); border:1px solid var(--ligne); border-radius:26px; padding:22px; }
+  .btn { display:flex; align-items:center; justify-content:center; gap:10px; width:100%;
+         height:54px; border:none; border-radius:15px; background:var(--accent); color:#fff;
+         font-family:inherit; font-size:16px; font-weight:600; cursor:pointer; }
+  .btn:hover { background:var(--accent-sombre); }
+  .puce-google { display:flex; align-items:center; justify-content:center; width:28px; height:28px;
+                 border-radius:9px; background:#fff; flex-shrink:0; }
+  .btn:disabled { opacity:.55; cursor:progress; }
+  .btn.sobre { background:transparent; color:var(--encre); border:1px solid var(--ligne);
+               height:42px; width:auto; padding:0 15px; font-size:14px; }
+  .btn.sobre:hover { background:var(--teinte); }
+  .sous-btn { margin:14px 0 0; text-align:center; font-size:13.5px; color:var(--encre-doux); }
+  .points { display:flex; flex-direction:column; gap:12px; margin-top:24px; }
+  .point { display:flex; align-items:center; gap:11px; font-size:14px; color:var(--encre-doux); }
+  .erreur { margin-top:14px; padding:12px 14px; border-radius:12px; background:rgba(179,38,30,.12);
+            color:var(--rouge); font-size:13.5px; display:none; word-break:break-word; }
+  .erreur.visible { display:block; }
+
+  #tableau { max-width:720px; margin:0 auto; padding:26px 20px 60px; }
+  #tableau .carte { border-radius:20px; padding:18px; }
+  .barre { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
+  .profil-carte { display:flex; align-items:center; gap:16px; }
+  .profil-texte { min-width:0; }
+  .profil-nom { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .avatar { width:56px; height:56px; border-radius:50%; background:var(--teinte); object-fit:cover; flex-shrink:0; }
+  .nom { font-size:20px; font-weight:700; }
+  .mail { font-size:14px; color:var(--encre-doux); word-break:break-all; }
+  .etiquette { display:inline-block; padding:5px 11px; border-radius:9px; background:var(--teinte);
+               color:var(--accent); font-size:12.5px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; }
+  .grille { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin:16px 0 0; }
+  .stat { background:var(--surface); border:1px solid var(--ligne); border-radius:16px; padding:16px; }
+  .stat .val { font-size:26px; font-weight:700; }
+  .stat .lib { font-size:13px; color:var(--encre-doux); }
+  .note { font-size:13.5px; color:var(--encre-doux); margin-top:22px; }
+  .bloc-cours { margin-top:30px; }
+  .bloc-titre { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; }
+  .sur-titre { font-size:12.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--encre-doux); }
+  .compteur { font-size:13px; color:var(--encre-doux); }
+  .cours { background:var(--surface); border:1px solid var(--ligne); border-radius:14px;
+           padding:13px 15px; margin-bottom:8px; }
+  .cours-nom { font-size:15px; font-weight:600; }
+  .cours-detail { font-size:12.5px; color:var(--encre-doux); margin-top:2px; }
+  .vide { font-size:14px; color:var(--encre-doux); }
+  .aide { font-size:13px; color:var(--encre-doux); margin:0 0 12px; }
+  .matiere { margin-bottom:10px; }
+  .matiere-haut { display:flex; align-items:center; gap:12px; }
+  .initiale { display:flex; align-items:center; justify-content:center; width:36px; height:36px;
+              border-radius:11px; background:var(--teinte); color:var(--accent);
+              font-family:"Bricolage Grotesque",sans-serif; font-weight:700; font-size:15px; flex-shrink:0; }
+  .matiere-nom { font-size:15px; font-weight:600; }
+  .matiere-etat { font-size:12.5px; color:var(--encre-doux); }
+  .chapitres { margin:10px 0 0 48px; display:flex; flex-direction:column; gap:7px; }
+  .chapitre-lien { display:block; text-decoration:none; color:var(--encre);
+                   border:1px solid var(--ligne); border-radius:12px; padding:11px 14px; }
+  .chapitre-lien:hover { border-color:var(--accent); background:var(--teinte); }
+  .chapitre-titre { font-size:14.5px; font-weight:600; }
+  .chapitre-sous { font-size:12.5px; color:var(--encre-doux); }
+  .cours { display:flex; align-items:flex-start; gap:12px; cursor:pointer; }
+  .cours input { width:18px; height:18px; margin:2px 0 0; accent-color:var(--accent); flex-shrink:0; }
+  .cours.hors .cours-nom { color:var(--encre-doux); }
+  .motif { display:inline-block; margin-top:4px; padding:2px 8px; border-radius:7px;
+           background:var(--teinte); color:var(--accent); font-size:11.5px; font-weight:600; }
+
+  @media (min-width:900px) {
+    #connexion { max-width:980px; padding:0 48px; gap:72px; min-height:100vh; }
+    #connexion.actif {
+      display:grid; grid-template-columns:1.05fr .95fr; align-items:center;
+    }
+    #connexion .titre { font-size:52px; letter-spacing:-1.6px; }
+    #connexion .accroche { font-size:17px; max-width:420px; }
+    #connexion .carte { padding:26px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="chargement">Chargement...</div>
+
+<section id="connexion" class="ecran">
+  <div>
+    <div class="logo-ligne">
+      <svg width="38" height="38" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <rect x="6" y="9" width="24" height="17" rx="5" fill="#9AD2DE" transform="rotate(-9 18 17)"/>
+        <rect x="10" y="14" width="24" height="17" rx="5" fill="#0E7490"/>
+        <path d="M17 22.5l3 3 6.5-6.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="marque">Revyzia</span>
+      <span class="version">v0.6</span>
+    </div>
+    <div style="margin-top:56px">
+      <h1 class="titre">Tes cours,<br>en révisions.</h1>
+      <p class="accroche">Les vrais cours de tes profs, transformés en fiches, QCM et exercices pour toi et ta classe.</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="carte">
+      <button class="btn" id="btnConnexion">
+        <span class="puce-google">
+          <svg width="19" height="19" viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
+            <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+            <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.1-11.3-7.9l-6.5 5C9.6 39.6 16.2 44 24 44z"/>
+            <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.6l6.2 5.2C39.9 35.6 44 30.4 44 24c0-1.3-.1-2.7-.4-3.5z"/>
+          </svg>
+        </span>
+        Continuer avec Google
+      </button>
+      <p class="sous-btn">Avec l'adresse mail de ton établissement.</p>
+      <div class="erreur" id="erreur"></div>
+    </div>
+    <div class="points">
+      <div class="point"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E7490" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Ta classe et tes groupes reconnus tout seuls</div>
+      <div class="point"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E7490" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Réservé aux élèves et aux profs de l'établissement</div>
+      <div class="point"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E7490" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Gratuit, sans publicité</div>
+    </div>
+  </div>
+</section>
+
+<section id="tableau" class="ecran">
+  <div class="barre">
+    <div class="logo-ligne">
+      <svg width="26" height="26" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <rect x="6" y="9" width="24" height="17" rx="5" fill="#9AD2DE" transform="rotate(-9 18 17)"/>
+        <rect x="10" y="14" width="24" height="17" rx="5" fill="#0E7490"/>
+        <path d="M17 22.5l3 3 6.5-6.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="marque" style="font-size:18px">Revyzia</span>
+      <span class="version">v0.6</span>
+    </div>
+    <button class="btn sobre" id="btnDeconnexion">Déconnexion</button>
+  </div>
+
+  <div class="carte profil-carte">
+    <img class="avatar" id="avatar" alt="">
+    <div class="profil-texte">
+      <div class="profil-nom">
+        <span class="nom" id="nom"></span>
+        <span class="etiquette" id="role"></span>
+      </div>
+      <div class="mail" id="mail"></div>
+    </div>
+  </div>
+
+  <div class="grille">
+    <div class="stat"><div class="val" id="xp">0</div><div class="lib">XP</div></div>
+    <div class="stat"><div class="val" id="serie">0</div><div class="lib">Jours de série</div></div>
+    <div class="stat"><div class="val" id="classe">?</div><div class="lib">Classe</div></div>
+    <div class="stat"><div class="val" id="groupes">0</div><div class="lib">Groupes</div></div>
+  </div>
+
+  <div class="bloc-cours">
+    <div class="bloc-titre">
+      <span class="sur-titre">Tes matières</span>
+      <span class="compteur" id="compteurChapitres"></span>
+    </div>
+    <div id="listeMatieres"></div>
+  </div>
+
+  <div class="bloc-cours">
+    <div class="bloc-titre">
+      <span class="sur-titre">Tes cours Classroom</span>
+      <span class="compteur" id="compteurCours"></span>
+    </div>
+    <p class="aide" id="aideCours">Décoche ce qui n'est pas de cette année. Tu ne le feras qu'une fois.</p>
+    <div id="listeCours"></div>
+    <button class="btn" id="btnEnregistrerCours" style="margin-top:14px; display:none">Enregistrer mes cours</button>
+    <p class="aide" id="etatCours"></p>
+  </div>
+
+  <p class="note">Lecture seule pour l'instant. Prochaine étape : relier ces cours à tes groupes et à tes matières.</p>
+</section>
+
+<script>
+(function () {
+  "use strict";
+
+  var VERSION = "11.3.1";
+  var BASES = [
+    "https://cdn.jsdelivr.net/npm/firebase@" + VERSION + "/",
+    "https://unpkg.com/firebase@" + VERSION + "/",
+    "https://www.gstatic.com/firebasejs/" + VERSION + "/"
+  ];
+  var FICHIERS = ["firebase-app-compat.js", "firebase-auth-compat.js", "firebase-firestore-compat.js"];
+
+  var CONFIG = {
+    apiKey: "AIzaSyDRUVa_1o3Mbz6Gyn8SuQlbjYyV5RNVKGY",
+    authDomain: "revyzia-app.firebaseapp.com",
+    projectId: "revyzia-app",
+    storageBucket: "revyzia-app.firebasestorage.app",
+    messagingSenderId: "841690966708",
+    appId: "1:841690966708:web:412fd2b2a48686dc9785e1"
+  };
+
+  var PORTEES = [
+    "https://www.googleapis.com/auth/classroom.courses.readonly",
+    "https://www.googleapis.com/auth/classroom.announcements.readonly",
+    "https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly",
+    "https://www.googleapis.com/auth/drive.readonly"
+  ];
+
+  function $(id) { return document.getElementById(id); }
+
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+
+  function montrer(ecran) {
+    $("chargement").style.display = "none";
+    var ecrans = document.querySelectorAll(".ecran");
+    for (var i = 0; i < ecrans.length; i++) ecrans[i].classList.remove("actif");
+    if (ecran) $(ecran).classList.add("actif");
+    // le navigateur garde la position de defilement d'un ecran a l'autre : on remonte en haut
+    window.scrollTo(0, 0);
+  }
+
+  function erreur(message) {
+    var e = $("erreur");
+    e.textContent = message;
+    e.classList.add("visible");
+  }
+
+  function charger(url) {
+    return new Promise(function (ok, ko) {
+      var s = document.createElement("script");
+      s.src = url;
+      s.async = false;
+      s.onload = function () { ok(url); };
+      s.onerror = function () { ko(new Error(url)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  // Essaie chaque hebergeur dans l'ordre. gstatic est souvent bloque a Hong Kong, il passe en dernier.
+  function chargerAvecSecours(fichier) {
+    var i = 0;
+    function suivant() {
+      if (i >= BASES.length) return Promise.reject(new Error("aucune source pour " + fichier));
+      var url = BASES[i++] + fichier;
+      return charger(url).then(function () {
+        console.log("[Revyzia] charge :", url);
+      }).catch(function () {
+        console.warn("[Revyzia] indisponible :", url);
+        return suivant();
+      });
+    }
+    return suivant();
+  }
+
+  function chargerSdk() {
+    return FICHIERS.reduce(function (chaine, fichier) {
+      return chaine.then(function () { return chargerAvecSecours(fichier); });
+    }, Promise.resolve());
+  }
+
+  var auth, db, ficheCourante = null;
+
+  chargerSdk().then(function () {
+    firebase.initializeApp(CONFIG);
+    auth = firebase.auth();
+    db = firebase.firestore();
+    try {
+      db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
+      console.log("[Revyzia] Firestore en detection automatique du transport");
+    } catch (e) {
+      console.warn("[Revyzia] reglage Firestore refuse", e);
+    }
+    demarrer();
+  }).catch(function (e) {
+    console.error("[Revyzia] echec du chargement du SDK", e);
+    $("chargement").textContent =
+      "Impossible de charger Revyzia. Ouvre la console (F12) et envoie les lignes [Revyzia].";
+  });
+
+  function demarrer() {
+    $("btnConnexion").addEventListener("click", function () {
+      var btn = $("btnConnexion");
+      btn.disabled = true;
+      $("erreur").classList.remove("visible");
+
+      var fournisseur = new firebase.auth.GoogleAuthProvider();
+      for (var i = 0; i < PORTEES.length; i++) fournisseur.addScope(PORTEES[i]);
+      fournisseur.setCustomParameters({ prompt: "select_account" });
+
+      auth.signInWithPopup(fournisseur).then(function (resultat) {
+        var jeton = resultat && resultat.credential && resultat.credential.accessToken;
+        if (jeton) {
+          sessionStorage.setItem("rvz_jeton", jeton);
+          console.log("[Revyzia] jeton Google obtenu");
+        }
+      }).catch(function (e) {
+        console.error("[Revyzia] echec de connexion", e);
+        var messages = {
+          "auth/popup-blocked": "La fenêtre Google a été bloquée par le navigateur.",
+          "auth/popup-closed-by-user": "Fenêtre fermée avant la fin de la connexion.",
+          "auth/unauthorized-domain": "Domaine non autorisé dans Firebase, Authentication, Paramètres, Domaines autorisés.",
+          "auth/operation-not-allowed": "Le fournisseur Google n'est pas activé dans Firebase."
+        };
+        erreur(messages[e.code] || ("Connexion impossible : " + (e.code || e.message)));
+      }).then(function () { btn.disabled = false; });
+    });
+
+    $("btnDeconnexion").addEventListener("click", function () {
+      sessionStorage.removeItem("rvz_jeton");
+      auth.signOut();
+    });
+    $("btnEnregistrerCours").addEventListener("click", enregistrerCours);
+
+    auth.onAuthStateChanged(function (user) {
+      console.log("[Revyzia] etat de connexion :", user ? user.uid : "personne");
+      if (!user) { montrer("connexion"); return; }
+      $("chargement").textContent = "Connexion en cours...";
+      $("chargement").style.display = "flex";
+      avecDelai(ficheUtilisateur(user), 12000).then(function (fiche) {
+        ficheCourante = fiche;
+        afficher(user, fiche);
+        montrer("tableau");
+        lireMatieres();
+        lireProgression(user);
+        lireClassroom();
+      }).catch(function (e) {
+        console.error("[Revyzia] echec de la fiche utilisateur", e);
+        montrer("connexion");
+        if (e.message === "delai") {
+          erreur("Connecté, mais la base ne répond pas. C'est souvent le réseau qui bloque Firestore. Ouvre la console (F12) et envoie-moi les lignes [Revyzia].");
+        } else if (e.code === "permission-denied") {
+          erreur("Connecté, mais la base refuse l'accès. Les règles Firestore ne sont pas celles attendues.");
+        } else {
+          erreur("Connecté, mais impossible de lire ta fiche : " + (e.code || e.message));
+        }
+      });
+    });
+  }
+
+  function avecDelai(promesse, millisecondes) {
+    return Promise.race([
+      promesse,
+      new Promise(function (_, ko) {
+        setTimeout(function () { ko(new Error("delai")); }, millisecondes);
+      })
+    ]);
+  }
+
+  function ficheUtilisateur(user) {
+    console.log("[Revyzia] lecture de la fiche", user.uid);
+    var ref = db.collection("users").doc(user.uid);
+    return ref.get().then(function (instantane) {
+      console.log("[Revyzia] fiche lue, existe :", instantane.exists);
+      if (instantane.exists) return instantane.data();
+      var nouvelle = {
+        email: user.email || "",
+        nom: user.displayName || "",
+        photo: user.photoURL || "",
+        role: "eleve",
+        etablissement: "lfihk",
+        classe: "",
+        groupes: [],
+        reglages: { theme: "auto", couleur: "lagon", effet: "verre" },
+        xp: 0,
+        serie: 0,
+        derniereRevision: "",
+        creele: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      return ref.set(nouvelle).then(function () {
+        console.log("[Revyzia] fiche creee");
+        return nouvelle;
+      });
+    });
+  }
+
+  // Annee scolaire en cours : septembre fait basculer
+  function anneeScolaire() {
+    var d = new Date();
+    var debut = d.getMonth() >= 8 ? d.getFullYear() : d.getFullYear() - 1;
+    return debut + "-" + (debut + 1);
+  }
+
+  // Decide si un cours est probablement de cette annee. Retourne { garder, motif }
+  function trierCours(c) {
+    var nom = (c.name || "") + " " + (c.section || "");
+    var sansAccent = nom.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    var annees = anneeScolaire().split("-");
+    var debut = parseInt(annees[0], 10), fin = parseInt(annees[1], 10);
+    var court = String(debut).slice(2) + "/" + String(fin).slice(2);
+
+    // 1. Un niveau de college cite dans le nom
+    if (/\b3(e|eme|a|b|c|d|e)?\b/.test(sansAccent) || /troisieme|college/.test(sansAccent)) {
+      if (!new RegExp("\\b2(nde|de|e)?\\b|seconde").test(sansAccent)) {
+        return { garder: false, motif: "autre niveau" };
+      }
+    }
+
+    // 2. Une annee scolaire anterieure citee, sans mention de l'annee en cours
+    var anneeCitee = sansAccent.match(/\b(20\d{2})\b/g);
+    var courtCite = sansAccent.indexOf(court) !== -1;
+    if (anneeCitee && !courtCite) {
+      var recente = anneeCitee.some(function (a) { return parseInt(a, 10) >= debut; });
+      if (!recente) return { garder: false, motif: "année précédente" };
+    }
+
+    // 3. Plus rien ne bouge depuis longtemps
+    if (c.updateTime) {
+      var jours = (Date.now() - new Date(c.updateTime).getTime()) / 86400000;
+      if (jours > 150) return { garder: false, motif: "inactif depuis " + Math.round(jours) + " jours" };
+    }
+
+    return { garder: true, motif: "" };
+  }
+
+  var coursCharges = [];
+
+  function lireMatieres() {
+    var zone = $("listeMatieres");
+    fetch("cours/index.json").then(function (r) {
+      if (!r.ok) throw new Error("manifeste introuvable");
+      return r.json();
+    }).then(function (manifeste) {
+      var total = 0;
+      zone.innerHTML = "";
+      manifeste.matieres.forEach(function (m) {
+        total += m.chapitres.length;
+        var bloc = document.createElement("div");
+        bloc.className = "carte matiere";
+
+        var haut = document.createElement("div");
+        haut.className = "matiere-haut";
+        var ini = document.createElement("span");
+        ini.className = "initiale"; ini.textContent = m.initiale || m.nom.charAt(0);
+        var texte = document.createElement("div");
+        var nom = document.createElement("div");
+        nom.className = "matiere-nom"; nom.textContent = m.nom;
+        var etat = document.createElement("div");
+        etat.className = "matiere-etat";
+        etat.textContent = m.chapitres.length
+          ? m.chapitres.length + " chapitre" + (m.chapitres.length > 1 ? "s" : "")
+          : "Rien encore";
+        texte.appendChild(nom); texte.appendChild(etat);
+        haut.appendChild(ini); haut.appendChild(texte);
+        bloc.appendChild(haut);
+
+        if (m.chapitres.length) {
+          var liste = document.createElement("div");
+          liste.className = "chapitres";
+          m.chapitres.forEach(function (ch) {
+            var a = document.createElement("a");
+            a.className = "chapitre-lien";
+            a.href = "chapitre.html?c=" + encodeURIComponent(ch.id);
+            var t = document.createElement("div");
+            t.className = "chapitre-titre"; t.textContent = ch.titre;
+            a.appendChild(t);
+            if (ch.sousTitre) {
+              var st = document.createElement("div");
+              st.className = "chapitre-sous"; st.textContent = ch.sousTitre;
+              a.appendChild(st);
+            }
+            liste.appendChild(a);
+          });
+          bloc.appendChild(liste);
+        }
+        zone.appendChild(bloc);
+      });
+      $("compteurChapitres").textContent = total + " chapitre" + (total > 1 ? "s" : "") + " en ligne";
+    }).catch(function (e) {
+      console.error("[Revyzia] manifeste illisible", e);
+      zone.innerHTML = '<p class="vide">Aucun chapitre publié pour le moment.</p>';
+    });
+  }
+
+  // XP total calcule depuis la progression, jamais ecrit par le navigateur dans la fiche
+  function lireProgression(user) {
+    db.collection("users").doc(user.uid).collection("progression").get().then(function (lot) {
+      var total = 0, chapitres = 0;
+      lot.forEach(function (d) { total += d.data().xpGagne || 0; chapitres++; });
+      $("xp").textContent = total;
+      console.log("[Revyzia] progression :", chapitres, "chapitres,", total, "XP");
+    }).catch(function (e) {
+      console.error("[Revyzia] progression illisible", e);
+    });
+  }
+
+  function lireClassroom() {
+    var liste = $("listeCours");
+    var jeton = sessionStorage.getItem("rvz_jeton");
+    if (!jeton) {
+      liste.innerHTML = '<p class="vide">Reconnecte-toi pour lire tes cours Classroom. Le jeton Google ne survit pas a la fermeture de l\'onglet.</p>';
+      $("aideCours").style.display = "none";
+      return;
+    }
+    liste.innerHTML = '<p class="vide">Lecture de Classroom...</p>';
+
+    fetch("https://classroom.googleapis.com/v1/courses?courseStates=ACTIVE&pageSize=100", {
+      headers: { Authorization: "Bearer " + jeton }
+    }).then(function (r) {
+      if (r.status === 401) { sessionStorage.removeItem("rvz_jeton"); throw new Error("jeton expire"); }
+      if (!r.ok) throw new Error("reponse " + r.status);
+      return r.json();
+    }).then(function (donnees) {
+      coursCharges = donnees.courses || [];
+      console.log("[Revyzia] cours Classroom :", coursCharges.length, coursCharges);
+      afficherCours();
+    }).catch(function (e) {
+      console.error("[Revyzia] echec Classroom", e);
+      $("aideCours").style.display = "none";
+      liste.innerHTML = '<p class="vide">Classroom illisible : ' + (e.message || "erreur") + '. Deconnecte-toi et reconnecte-toi.</p>';
+    });
+  }
+
+  function afficherCours() {
+    var liste = $("listeCours");
+    var dejaChoisis = (ficheCourante && ficheCourante.coursActifs) || null;
+    var retenus = 0;
+
+    liste.innerHTML = "";
+    coursCharges.forEach(function (c) {
+      var verdict = trierCours(c);
+      var coche = dejaChoisis ? dejaChoisis.indexOf(c.id) !== -1 : verdict.garder;
+      if (coche) retenus++;
+
+      var etiquette = document.createElement("label");
+      etiquette.className = "carte cours" + (coche ? "" : " hors");
+
+      var case_ = document.createElement("input");
+      case_.type = "checkbox";
+      case_.checked = coche;
+      case_.value = c.id;
+      case_.addEventListener("change", function () {
+        etiquette.classList.toggle("hors", !case_.checked);
+        majCompteur();
+      });
+
+      var texte = document.createElement("div");
+      var nom = document.createElement("div");
+      nom.className = "cours-nom";
+      nom.textContent = c.name || "(sans nom)";
+      texte.appendChild(nom);
+
+      var detail = document.createElement("div");
+      detail.className = "cours-detail";
+      var bouts = [];
+      if (c.section) bouts.push(c.section);
+      if (c.updateTime) bouts.push("dernier mouvement le " + c.updateTime.slice(0, 10));
+      detail.textContent = bouts.join(" · ");
+      texte.appendChild(detail);
+
+      if (!verdict.garder) {
+        var motif = document.createElement("span");
+        motif.className = "motif";
+        motif.textContent = verdict.motif;
+        texte.appendChild(motif);
+      }
+
+      etiquette.appendChild(case_);
+      etiquette.appendChild(texte);
+      liste.appendChild(etiquette);
+    });
+
+    $("aideCours").style.display = "";
+    $("btnEnregistrerCours").style.display = coursCharges.length ? "flex" : "none";
+    majCompteur();
+  }
+
+  function coursCoches() {
+    var cases = $("listeCours").querySelectorAll("input[type=checkbox]");
+    var ids = [];
+    for (var i = 0; i < cases.length; i++) if (cases[i].checked) ids.push(cases[i].value);
+    return ids;
+  }
+
+  function majCompteur() {
+    $("compteurCours").textContent = coursCoches().length + " sur " + coursCharges.length + " retenus";
+  }
+
+  function enregistrerCours() {
+    var btn = $("btnEnregistrerCours");
+    var user = auth.currentUser;
+    if (!user) return;
+    btn.disabled = true;
+    $("etatCours").textContent = "Enregistrement...";
+
+    db.collection("users").doc(user.uid).update({
+      coursActifs: coursCoches(),
+      anneeScolaire: anneeScolaire()
+    }).then(function () {
+      if (ficheCourante) {
+        ficheCourante.coursActifs = coursCoches();
+        ficheCourante.anneeScolaire = anneeScolaire();
+      }
+      $("etatCours").textContent = "Enregistré. Année " + anneeScolaire() + ".";
+      console.log("[Revyzia] cours enregistres");
+    }).catch(function (e) {
+      console.error("[Revyzia] echec enregistrement", e);
+      $("etatCours").textContent = "Échec : " + (e.code || e.message);
+    }).then(function () { btn.disabled = false; });
+  }
+
+  function afficher(user, fiche) {
+    $("avatar").src = fiche.photo || user.photoURL || "";
+    $("nom").textContent = fiche.nom || user.displayName || "Sans nom";
+    $("mail").textContent = fiche.email || user.email || "";
+    $("role").textContent = fiche.role || "eleve";
+    $("xp").textContent = fiche.xp || 0;
+    $("serie").textContent = fiche.serie || 0;
+    $("classe").textContent = fiche.classe || "?";
+    $("groupes").textContent = (fiche.groupes || []).length;
+  }
+})();
+</script>
+</body>
+</html>
