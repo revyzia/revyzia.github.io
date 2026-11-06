@@ -1,5 +1,7 @@
 rules_version = '2';
 
+// Revyzia v1.6. A coller dans la console Firebase, Firestore, Regles, puis Publier.
+// L'XP n'est plus un chiffre libre : chaque ecriture est bornee et espacee.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -15,36 +17,180 @@ service cloud.firestore {
     function peutPublier() {
       return connecte() && fiche().role in ['admin', 'prof'];
     }
+    function apres() {
+      return request.resource.data;
+    }
+    function avant() {
+      return resource.data;
+    }
+    function inchange(champs) {
+      return !apres().diff(avant()).affectedKeys().hasAny(champs);
+    }
 
     match /users/{uid} {
 
       allow read: if cestMoi(uid);
 
       allow create: if cestMoi(uid)
-        && request.resource.data.role == 'eleve'
-        && request.resource.data.xp == 0
-        && request.resource.data.serie == 0
-        && request.resource.data.email == request.auth.token.email;
+        && apres().role == 'eleve'
+        && apres().xp == 0
+        && apres().serie == 0
+        && apres().email == request.auth.token.email;
 
       allow update: if cestMoi(uid)
-        && request.resource.data.role == resource.data.role
-        && request.resource.data.xp == resource.data.xp
-        && request.resource.data.serie == resource.data.serie;
+        && inchange(['role', 'xp', 'serie', 'email', 'etablissement']);
 
       allow delete: if cestMoi(uid);
 
+      // Progression d'un chapitre : on ne peut qu'ajouter des elements nouveaux,
+      // 1 a 12 par ecriture, chacun entre 3 et 10 XP, au plus une ecriture toutes les 2 secondes.
       match /progression/{chapitre} {
-        allow read, write: if cestMoi(uid);
+        allow read: if cestMoi(uid);
+        allow delete: if false;
+
+        allow create: if cestMoi(uid)
+          && apres().keys().hasOnly(['chapitre', 'matiere', 'itemsFaits', 'xpGagne', 'avancement', 'maj'])
+          && apres().itemsFaits is map
+          && apres().itemsFaits.size() >= 1 && apres().itemsFaits.size() <= 12
+          && apres().xpGagne is int
+          && apres().xpGagne >= 3 * apres().itemsFaits.size()
+          && apres().xpGagne <= 10 * apres().itemsFaits.size()
+          && avancementValide()
+          && apres().maj == request.time;
+
+        allow update: if cestMoi(uid)
+          && apres().keys().hasOnly(['chapitre', 'matiere', 'itemsFaits', 'xpGagne', 'avancement', 'maj'])
+          && apres().itemsFaits is map
+          && apres().itemsFaits.diff(avant().itemsFaits).changedKeys().size() == 0
+          && apres().itemsFaits.diff(avant().itemsFaits).removedKeys().size() == 0
+          && nouveauxElementsValides(apres().itemsFaits.diff(avant().itemsFaits).addedKeys().size())
+          && avancementValide()
+          && apres().maj == request.time
+          && (!('maj' in avant()) || request.time > avant().maj + duration.value(2, 's'));
       }
+      function nouveauxElementsValides(n) {
+        return n >= 1 && n <= 12
+          && apres().xpGagne is int
+          && apres().xpGagne - avant().xpGagne >= 3 * n
+          && apres().xpGagne - avant().xpGagne <= 10 * n;
+      }
+      function avancementValide() {
+        return apres().avancement is int && apres().avancement >= 0 && apres().avancement <= 100;
+      }
+
+      // Prive : activite (XP par jour, pour la serie) et photo de fond
+      match /prive/{doc} {
+        allow read, delete: if cestMoi(uid);
+        allow create, update: if cestMoi(uid) && (
+          (doc == 'activite' && apres().jours is map)
+          || (doc == 'fond' && apres().image is string && apres().image.size() < 600000)
+        );
+      }
+    }
+
+    // Podium. Lisible par les eleves connectes, chacun n'ecrit que sa ligne.
+    // L'XP part de 0, monte de 120 au plus par ecriture, une ecriture toutes les 2 secondes,
+    // et 1 500 au plus sur une journee glissante.
+    match /classement/{uid} {
+      allow read: if connecte();
+      allow delete: if cestMoi(uid);
+
+      allow create: if cestMoi(uid)
+        && champsClassement()
+        && apres().xp == 0 && apres().xpSemaine == 0 && apres().xpJour == 0
+        && apres().jourDebut == request.time
+        && apres().xpMaj == request.time
+        && apres().vu == request.time
+        && apres().classe == fiche().classe
+        && apres().etablissement == fiche().etablissement;
+
+      allow update: if cestMoi(uid)
+        && champsClassement()
+        && apres().vu == request.time
+        && (apres().classe == avant().classe || apres().classe == fiche().classe)
+        && inchange(['etablissement'])
+        && (sansXp() || avecXp(apres().xp - avant().xp));
+    }
+    function champsClassement() {
+      return apres().keys().hasOnly(['prenom', 'classe', 'etablissement', 'visible', 'xp', 'xpSemaine', 'semaine',
+                                     'xpJour', 'jourDebut', 'xpMaj', 'serie', 'photo', 'vu'])
+        && apres().visible is bool
+        && apres().prenom is string && apres().prenom.size() <= 40
+        && apres().photo is string && apres().photo.size() <= 500
+        && (apres().visible == true || (apres().prenom == '' && apres().photo == ''))
+        && apres().classe is string
+        && apres().semaine is string
+        && apres().serie is int && apres().serie >= 0 && apres().serie <= 3650
+        && apres().xp is int && apres().xpSemaine is int && apres().xpJour is int;
+    }
+    function sansXp() {
+      return inchange(['xp', 'xpSemaine', 'semaine', 'xpJour', 'jourDebut', 'xpMaj']);
+    }
+    function avecXp(delta) {
+      return delta > 0 && delta <= 120
+        && apres().xpMaj == request.time
+        && request.time > avant().xpMaj + duration.value(2, 's')
+        && ((apres().semaine == avant().semaine && apres().xpSemaine == avant().xpSemaine + delta)
+            || (apres().semaine != avant().semaine && apres().xpSemaine == delta))
+        && ((request.time < avant().jourDebut + duration.value(1, 'd')
+             && apres().jourDebut == avant().jourDebut
+             && apres().xpJour == avant().xpJour + delta
+             && apres().xpJour <= 1500)
+            || (request.time > avant().jourDebut + duration.value(20, 'h')
+             && apres().jourDebut == request.time
+             && apres().xpJour == delta));
+    }
+
+    // Corrections de QCM : un eleve signale, 3 autres confirment ou un prof tranche.
+    match /corrections/{id} {
+      allow read: if connecte();
+
+      allow create: if connecte()
+        && apres().keys().hasOnly(['chapitre', 'section', 'item', 'question', 'proposition', 'message',
+                                   'auteur', 'auteurPrenom', 'confirmations', 'statut', 'recompensee', 'creele'])
+        && apres().auteur == request.auth.uid
+        && apres().confirmations == []
+        && apres().statut == 'ouverte'
+        && apres().recompensee == false
+        && apres().proposition is int && apres().proposition >= -1 && apres().proposition <= 5
+        && apres().message is string && apres().message.size() <= 500
+        && apres().chapitre is string && apres().section is string && apres().item is string
+        && apres().creele == request.time;
+
+      allow update: if connecte() && (
+        // un autre eleve confirme, une seule fois
+        (request.auth.uid != avant().auteur
+          && avant().statut == 'ouverte'
+          && !(request.auth.uid in avant().confirmations)
+          && apres().diff(avant()).affectedKeys().hasOnly(['confirmations', 'statut'])
+          && apres().confirmations == avant().confirmations.concat([request.auth.uid])
+          && ((apres().confirmations.size() >= 3 && apres().statut == 'confirmee')
+              || (apres().confirmations.size() < 3 && apres().statut == 'ouverte')))
+        // un prof ou un admin tranche seul
+        || (peutPublier()
+          && apres().diff(avant()).affectedKeys().hasOnly(['statut', 'parProf'])
+          && apres().statut in ['confirmee', 'rejetee']
+          && apres().parProf == request.auth.uid)
+        // l'auteur encaisse sa recompense, une seule fois
+        || (request.auth.uid == avant().auteur
+          && avant().statut == 'confirmee'
+          && avant().recompensee == false
+          && apres().diff(avant()).affectedKeys().hasOnly(['recompensee'])
+          && apres().recompensee == true)
+      );
+
+      allow delete: if peutPublier()
+        || (connecte() && avant().auteur == request.auth.uid
+            && avant().statut == 'ouverte' && avant().confirmations.size() == 0);
     }
 
     // Chapitres publies : tout le monde lit, seuls admin et prof ecrivent
     match /chapitres/{id} {
       allow read: if connecte();
       allow create, update: if peutPublier()
-        && request.resource.data.titre is string
-        && request.resource.data.sections is list
-        && request.resource.data.sections.size() > 0;
+        && apres().titre is string
+        && apres().sections is list
+        && apres().sections.size() > 0;
       allow delete: if peutPublier();
     }
 

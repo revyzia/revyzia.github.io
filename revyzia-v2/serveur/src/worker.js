@@ -167,10 +167,11 @@ async function consommerQuota(env, uid) {
   const cle = "q:" + uid + ":" + new Date().toISOString().slice(0, 10);
   const brut = await env.QUOTAS.get(cle);
   const utilise = brut ? parseInt(brut, 10) : 0;
-  if (utilise >= QUOTA_PAR_JOUR) return { reste: 0, suivi: true };
+  // deja 12 generations aujourd'hui : on refuse sans rien compter
+  if (utilise >= QUOTA_PAR_JOUR) return { reste: 0, suivi: true, refuse: true };
 
   await env.QUOTAS.put(cle, String(utilise + 1), { expirationTtl: 60 * 60 * 30 });
-  return { reste: QUOTA_PAR_JOUR - utilise - 1, suivi: true };
+  return { reste: QUOTA_PAR_JOUR - utilise - 1, suivi: true, refuse: false };
 }
 
 /* ------------------------------------------------------------------ */
@@ -216,7 +217,7 @@ async function routeGenerer(requete, env, entetes) {
   }
 
   const quota = await consommerQuota(env, charge.sub);
-  if (quota.reste <= 0 && quota.suivi) {
+  if (quota.refuse) {
     return json({ erreur: "quota du jour atteint, reviens demain" }, 429, entetes);
   }
 
