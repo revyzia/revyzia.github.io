@@ -47,7 +47,15 @@
          font-family:"Instrument Sans",system-ui,-apple-system,sans-serif; line-height:1.55; }
   .fond { position:fixed; inset:0; z-index:-1; background:var(--fond); }
   h1,h2,.val,.marque { font-family:"Bricolage Grotesque","Instrument Sans",sans-serif; }
-  main { max-width:780px; margin:0 auto; padding:22px 20px 80px; }
+  main { max-width:820px; margin:0 auto; padding:22px 20px 80px; }
+  @media (min-width:1100px) {
+    main { max-width:1180px; padding:26px 36px 60px; }
+    .colonnes { display:grid; grid-template-columns:300px minmax(0,1fr); gap:38px; align-items:start; }
+    .colonne-gauche { position:sticky; top:96px; }
+    .titre-chapitre { font-size:30px; }
+    .onglets, .modes { flex-direction:column; align-items:stretch; }
+    .onglet, .mode { text-align:left; }
+  }
 
   .carte, .pastille, .retour, .onglet, .reponse, .btn.sobre {
     background:var(--verre); border:1px solid var(--verre-bord);
@@ -171,14 +179,16 @@
     </div>
   </header>
 
-  <h1 class="titre-chapitre" id="titre">Chargement...</h1>
-  <p class="sous-titre" id="sousTitre"></p>
-  <div class="badges" id="badges"></div>
-
-  <div class="onglets" id="onglets"></div>
-  <div class="modes" id="modes"></div>
-
-  <div id="contenu"></div>
+  <div class="colonnes">
+    <div class="colonne-gauche">
+      <h1 class="titre-chapitre" id="titre">Chargement...</h1>
+      <p class="sous-titre" id="sousTitre"></p>
+      <div class="badges" id="badges"></div>
+      <div class="onglets" id="onglets"></div>
+      <div class="modes" id="modes"></div>
+    </div>
+    <div id="contenu"></div>
+  </div>
 </main>
 
 <script>

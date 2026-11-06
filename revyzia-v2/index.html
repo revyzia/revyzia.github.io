@@ -9,79 +9,60 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --accent:#0E7490; --accent-clair:#7FD3E0; --accent-sombre:#0A5568;
-    --encre:#0C181C; --encre-doux:#4E6166;
-    --papier:#E8F1F3;
-    --verre:rgba(255,255,255,.52);
-    --verre-bord:rgba(255,255,255,.75);
-    --verre-haut:rgba(255,255,255,.95);
-    --ombre:0 18px 44px rgba(8,38,48,.14);
-    --teinte:rgba(14,116,144,.12);
-    --rouge:#B3261E;
+    --accent:#0E7490; --accent-2:#1FA2B8; --accent-sombre:#0A5568;
+    --encre:#141418; --encre-doux:#33333c;
+    --verre-fond:linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.09) 45%, rgba(255,255,255,.14));
+    --verre-bord:rgba(255,255,255,.65);
+    --verre-ombre:0 16px 40px rgba(20,20,40,.16), 0 2px 8px rgba(20,20,40,.08),
+                  inset 0 1.5px 1px rgba(255,255,255,.95), inset 0 -1px 1px rgba(255,255,255,.4),
+                  inset 1.5px 0 1px rgba(255,255,255,.35), inset -1.5px 0 1px rgba(255,255,255,.28);
+    --interne:rgba(255,255,255,.28);
+    --interne-bord:rgba(255,255,255,.45);
+    --rouge:#b7492f;
     --fond:
-      radial-gradient(760px 560px at 8% 2%, #9FE0EA 0%, rgba(159,224,234,0) 62%),
-      radial-gradient(680px 620px at 96% 14%, #CDEADF 0%, rgba(205,234,223,0) 60%),
-      radial-gradient(820px 600px at 70% 100%, #6FBED4 0%, rgba(111,190,212,0) 64%),
-      linear-gradient(165deg, #F2F9FA 0%, #DCEBEF 100%);
+      radial-gradient(820px 620px at 10% 0%, #CFE6F5 0%, rgba(207,230,245,0) 64%),
+      radial-gradient(680px 620px at 94% 10%, #E8DFF2 0%, rgba(232,223,242,0) 60%),
+      radial-gradient(760px 600px at 72% 100%, #BFE3E8 0%, rgba(191,227,232,0) 64%),
+      linear-gradient(160deg, #EEF2F7 0%, #E3EAF2 100%);
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --encre:#EEF6F7; --encre-doux:#93AAB0;
-      --papier:#05141A;
-      --verre:rgba(255,255,255,.10);
-      --verre-bord:rgba(255,255,255,.26);
-      --verre-haut:rgba(255,255,255,.55);
-      --ombre:0 18px 44px rgba(0,0,0,.45);
-      --teinte:rgba(127,211,224,.16);
-      --accent-clair:#7FD3E0;
+      --encre:#F4F6FA; --encre-doux:#B3BCC9;
+      --verre-fond:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.05) 45%, rgba(255,255,255,.08));
+      --verre-bord:rgba(255,255,255,.22);
+      --verre-ombre:0 16px 40px rgba(0,0,0,.45), inset 0 1.5px 1px rgba(255,255,255,.45),
+                    inset 0 -1px 1px rgba(255,255,255,.12);
+      --interne:rgba(255,255,255,.07);
+      --interne-bord:rgba(255,255,255,.14);
+      --rouge:#ff8c84;
       --fond:
         radial-gradient(820px 620px at 10% 0%, #15839E 0%, rgba(21,131,158,0) 64%),
-        radial-gradient(680px 620px at 96% 14%, #13505E 0%, rgba(19,80,94,0) 60%),
-        radial-gradient(820px 600px at 70% 100%, #0B6B7A 0%, rgba(11,107,122,0) 64%),
-        linear-gradient(165deg, #041217 0%, #072027 100%);
+        radial-gradient(680px 620px at 94% 10%, #2A2F57 0%, rgba(42,47,87,0) 60%),
+        radial-gradient(760px 600px at 72% 100%, #0B6B7A 0%, rgba(11,107,122,0) 64%),
+        linear-gradient(160deg, #0A1016 0%, #101A22 100%);
     }
   }
   * { box-sizing:border-box; }
   html, body { height:100%; }
-  body {
-    margin:0; color:var(--encre); background:var(--papier);
-    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
-    font-family:"Instrument Sans",system-ui,-apple-system,sans-serif; line-height:1.55;
-  }
-  /* le fond est fixe : c'est lui que le verre deforme */
-  .fond { position:fixed; inset:0; z-index:-1; background:var(--fond); background-attachment:fixed; }
+  body { margin:0; color:var(--encre); background:#E3EAF2;
+         padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+         font-family:"Instrument Sans",system-ui,-apple-system,sans-serif; line-height:1.5; }
+  .fond { position:fixed; inset:0; z-index:-1; background:var(--fond); }
 
-  h1,.marque,.val,.initiale { font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif; }
+  h1,h2,.marque,.chiffre,.titre,.seance-titre { font-family:"Bricolage Grotesque","Instrument Sans",sans-serif; }
   .ecran { display:none; }
   .ecran.actif { display:block; }
 
-  /* ---------- le verre ---------- */
-  .carte, .stat, .chapitre-lien, .cours, .pastille {
-    position:relative;
-    background:var(--verre);
+  /* ---------- le verre, recette de la maquette ---------- */
+  .carte, .pilule {
+    backdrop-filter:url(#rvzLens) blur(1.5px) saturate(1.7) brightness(1.06);
+    -webkit-backdrop-filter:blur(18px) saturate(1.7) brightness(1.06);
+    background:var(--verre-fond);
     border:1px solid var(--verre-bord);
-    box-shadow:var(--ombre), inset 0 1.5px 0 var(--verre-haut), inset 0 -1px 0 rgba(255,255,255,.22);
-    backdrop-filter:blur(22px) saturate(1.7);
-    -webkit-backdrop-filter:blur(22px) saturate(1.7);
+    box-shadow:var(--verre-ombre);
   }
-  /* la refraction, pour les navigateurs qui savent : ils remplacent la ligne du dessus */
-  .carte, .stat {
-    backdrop-filter:url(#rvzLens) blur(3px) saturate(1.7);
-  }
-  /* imbrique dans une carte : plus sobre, sinon il attire l'oeil plus que son parent */
-  .chapitre-lien, .cours {
-    background:rgba(255,255,255,.26); backdrop-filter:blur(10px) saturate(1.3);
-    -webkit-backdrop-filter:blur(10px) saturate(1.3);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
-  }
-  @media (prefers-color-scheme: dark) {
-    .chapitre-lien, .cours { background:rgba(255,255,255,.06);
-                             box-shadow:inset 0 1px 0 rgba(255,255,255,.14); }
-  }
-  .carte { border-radius:26px; padding:22px; }
-  .stat { border-radius:18px; padding:16px; }
-  .chapitre-lien { border-radius:15px; padding:12px 15px; }
-  .cours { border-radius:15px; padding:13px 15px; }
+  .carte { border-radius:22px; clip-path:inset(0 round 22px); padding:18px; }
+  .pilule { border-radius:99px; clip-path:inset(0 round 99px); }
 
   #chargement { min-height:100vh; display:flex; align-items:center; justify-content:center;
                 padding:40px 26px; text-align:center; color:var(--encre-doux); font-size:15px; }
@@ -89,133 +70,129 @@
   /* ---------- connexion ---------- */
   #connexion { min-height:100vh; max-width:460px; margin:0 auto; padding:46px 26px 38px; gap:48px; }
   #connexion.actif { display:flex; flex-direction:column; justify-content:space-between; }
-  .logo-ligne { display:flex; align-items:center; gap:11px; }
-  .marque { font-size:24px; font-weight:800; letter-spacing:-.5px; }
-  .version { font-size:11px; font-weight:600; color:var(--encre-doux);
-             border:1px solid var(--verre-bord); border-radius:6px; padding:2px 6px; }
-  .titre { margin:0 0 14px; font-size:40px; line-height:1.04; font-weight:800; letter-spacing:-1.2px; }
+  .logo-ligne { display:flex; align-items:center; gap:10px; }
+  .marque { font-size:17px; font-weight:700; letter-spacing:-.4px; }
+  #connexion .marque { font-size:22px; }
+  .version { font-size:10.5px; font-weight:600; color:var(--encre-doux);
+             border:1px solid var(--verre-bord); border-radius:99px; padding:2px 8px; }
+  .titre { margin:0 0 14px; font-size:40px; line-height:1.04; font-weight:700; letter-spacing:-1.2px; }
   .accroche { margin:0; font-size:16px; color:var(--encre-doux); }
   .btn { display:flex; align-items:center; justify-content:center; gap:10px; width:100%;
-         height:54px; border:none; border-radius:16px; background:var(--accent); color:#fff;
-         font-family:inherit; font-size:16px; font-weight:600; cursor:pointer;
-         box-shadow:0 10px 24px rgba(14,116,144,.3); transition:transform .12s ease, background .15s ease; }
-  .btn:hover { background:var(--accent-sombre); transform:translateY(-1px); }
-  .btn:active { transform:translateY(0); }
-  .btn:disabled { opacity:.55; cursor:progress; transform:none; }
-  .btn.sobre { background:var(--verre); color:var(--encre); border:1px solid var(--verre-bord);
-               height:42px; width:auto; padding:0 15px; font-size:14px; box-shadow:none;
-               backdrop-filter:blur(18px) saturate(1.6); -webkit-backdrop-filter:blur(18px) saturate(1.6); }
-  .btn.sobre:hover { background:var(--teinte); }
+         height:52px; border:none; border-radius:16px; color:#fff; cursor:pointer;
+         background:linear-gradient(135deg, var(--accent), var(--accent-2));
+         font-family:inherit; font-size:15.5px; font-weight:600;
+         box-shadow:0 10px 24px rgba(14,116,144,.3); }
+  .btn:hover { filter:brightness(1.06); }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .btn.sobre { background:var(--interne); color:var(--encre); border:1px solid var(--interne-bord);
+               height:38px; width:auto; padding:0 15px; font-size:13.5px; box-shadow:none; }
   .puce-google { display:flex; align-items:center; justify-content:center; width:28px; height:28px;
                  border-radius:9px; background:#fff; flex-shrink:0; }
-  .sous-btn { margin:14px 0 0; text-align:center; font-size:13.5px; color:var(--encre-doux); }
-  .points { display:flex; flex-direction:column; gap:12px; margin-top:24px; }
-  .point { display:flex; align-items:center; gap:11px; font-size:14px; color:var(--encre-doux); }
-  .erreur { margin-top:14px; padding:12px 14px; border-radius:12px; background:rgba(179,38,30,.14);
-            color:var(--rouge); font-size:13.5px; display:none; word-break:break-word; }
+  .sous-btn { margin:13px 0 0; text-align:center; font-size:13px; color:var(--encre-doux); }
+  .points { display:flex; flex-direction:column; gap:11px; margin-top:22px; }
+  .point-ligne { display:flex; align-items:center; gap:11px; font-size:14px; color:var(--encre-doux); }
+  .erreur { margin-top:13px; padding:11px 13px; border-radius:12px; background:rgba(183,73,47,.14);
+            color:var(--rouge); font-size:13px; display:none; }
   .erreur.visible { display:block; }
 
-  /* ---------- tableau de bord ---------- */
-  #tableau { max-width:760px; margin:0 auto; padding:18px 20px 110px; }
+  /* ---------- hub ---------- */
+  #tableau { max-width:1080px; margin:0 auto; padding:16px 20px 60px; }
 
+  .barre { display:flex; align-items:center; justify-content:space-between; gap:16px;
+           padding:9px 9px 9px 16px; margin-bottom:22px; position:sticky;
+           top:calc(10px + env(safe-area-inset-top,0px)); z-index:30; }
   .barre-gauche { display:flex; align-items:center; gap:9px; }
+  .nav-haut { display:flex; gap:18px; font-size:13px; font-weight:600; }
+  .nav-haut a { text-decoration:none; color:var(--encre-doux); }
+  .nav-haut a.actif, .nav-haut a:hover { color:var(--encre); }
   .barre-droite { display:flex; align-items:center; gap:8px; }
-  .pastille { border-radius:12px; padding:8px 12px; font-size:13px; font-weight:700;
-              background:rgba(127,211,224,.14); border:1px solid var(--verre-bord); }
-  .pastille.accent { background:var(--accent); border-color:transparent; color:#fff; }
-  .avatar-mini { width:34px; height:34px; border-radius:50%; object-fit:cover;
-                 background:var(--teinte); border:1px solid var(--verre-bord); }
+  .jeton { font-size:12.5px; font-weight:700; padding:6px 12px; box-shadow:inset 0 1px 0 rgba(255,255,255,.7); }
+  .avatar-mini { width:30px; height:30px; border-radius:50%; object-fit:cover;
+                 border:1.5px solid rgba(255,255,255,.85); background:var(--interne); }
 
-  .bonjour { margin:28px 0 18px; }
-  .salut { margin:4px 0 6px; font-size:34px; font-weight:800; letter-spacing:-1px; }
-  .situation { margin:0; font-size:14px; color:var(--encre-doux); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .entete { display:flex; align-items:center; justify-content:space-between; gap:16px;
+            flex-wrap:wrap; margin:22px 4px 20px; }
+  .salut { margin:0; font-size:28px; font-weight:700; letter-spacing:-.8px; }
+  .statut { display:inline-flex; align-items:center; gap:8px; padding:8px 15px;
+            font-size:12.5px; font-weight:600; color:var(--encre); }
+  .point { width:8px; height:8px; border-radius:50%; background:#2ecc63;
+           box-shadow:0 0 0 3px rgba(46,204,99,.25); }
 
-  .seance { display:flex; align-items:center; justify-content:space-between; gap:16px;
-            text-decoration:none; color:#fff; border-radius:24px; padding:22px 24px; margin-bottom:34px;
-            background:linear-gradient(135deg, #0E7490 0%, #0A5568 100%);
-            box-shadow:0 20px 44px rgba(10,85,104,.4); }
-  .seance:hover { transform:translateY(-2px); }
-  .seance-texte { display:flex; flex-direction:column; gap:5px; min-width:0; }
-  .seance-sur { font-size:11.5px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,.72); }
-  .seance-titre { font-family:"Bricolage Grotesque",sans-serif; font-size:22px; font-weight:700; line-height:1.15; }
-  .seance-sous { font-size:13.5px; color:rgba(255,255,255,.78); }
-  .seance-fleche { display:flex; align-items:center; justify-content:center; width:44px; height:44px;
-                   border-radius:50%; background:rgba(255,255,255,.18); flex-shrink:0; }
+  .trois { display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-bottom:16px; }
+  .sur-titre { font-size:10.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--encre-doux); }
+  .sur-titre.clair { color:rgba(255,255,255,.75); }
+  .chiffre { font-size:25px; font-weight:700; margin-top:3px; }
+  .chiffre.avec-icone { display:flex; align-items:center; gap:8px; }
+  .chiffre-sous { font-family:"Instrument Sans",sans-serif; font-size:12.5px; font-weight:500; color:var(--encre-doux); }
+  .detail { font-size:11px; font-weight:500; color:var(--encre-doux); margin-top:8px; }
+  .barre-progres { display:block; height:6px; border-radius:3px; background:rgba(255,255,255,.4);
+                   margin-top:10px; overflow:hidden; }
+  @media (prefers-color-scheme: dark) { .barre-progres { background:rgba(255,255,255,.14); } }
+  .barre-progres span { display:block; height:100%; border-radius:3px;
+                        background:linear-gradient(90deg, var(--accent), var(--accent-2)); }
 
-  .barre-progres { display:block; height:5px; border-radius:3px; background:rgba(127,211,224,.22); margin-top:7px; }
-  .barre-progres span { display:block; height:5px; border-radius:3px; background:var(--accent); }
-  @media (prefers-color-scheme: dark) { .barre-progres span { background:var(--accent-clair); } }
+  .deux { display:grid; grid-template-columns:1.8fr 1fr; gap:14px; align-items:start; }
+  .colonne-droite { display:flex; flex-direction:column; gap:14px; }
+  .carte-haut { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; }
+  .carte-haut h2 { margin:0; font-size:16px; font-weight:700; letter-spacing:-.3px; }
+  .compteur { font-size:11.5px; color:var(--encre-doux); }
 
-  .pied-page { display:flex; align-items:center; justify-content:space-between; gap:12px;
-               margin-top:38px; padding-top:18px; border-top:1px solid var(--verre-bord); }
+  .seance { position:relative; color:#fff; text-decoration:none; display:flex; flex-direction:column; gap:4px;
+            background:linear-gradient(135deg, #0E7490 0%, #0A4A5C 100%);
+            border-color:rgba(255,255,255,.2); backdrop-filter:none; -webkit-backdrop-filter:none;
+            box-shadow:0 16px 38px rgba(10,74,92,.4); padding:20px; }
+  .seance-titre { font-size:19px; font-weight:700; line-height:1.2; padding-right:40px; }
+  .seance-sous { font-size:12.5px; color:rgba(255,255,255,.78); }
+  .seance-fleche { position:absolute; right:18px; top:50%; margin-top:-17px;
+                   width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.18);
+                   display:flex; align-items:center; justify-content:center; }
 
-  .onglets-bas { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(16px + env(safe-area-inset-bottom,0px));
-                 display:flex; gap:6px; padding:8px; border-radius:22px; z-index:30;
-                 background:var(--verre); border:1px solid var(--verre-bord);
-                 box-shadow:var(--ombre), inset 0 1.5px 0 var(--verre-haut);
-                 backdrop-filter:blur(22px) saturate(1.7); -webkit-backdrop-filter:blur(22px) saturate(1.7); }
-  .onglet-bas { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
-                width:84px; height:52px; border-radius:16px; text-decoration:none;
-                color:var(--encre-doux); font-size:11.5px; font-weight:600; }
-  .onglet-bas.actif { color:var(--accent); background:var(--teinte); }
-  @media (prefers-color-scheme: dark) { .onglet-bas.actif { color:var(--accent-clair); } }
-  .barre { position:sticky; top:env(safe-area-inset-top,0px); z-index:20;
-           display:flex; align-items:center; justify-content:space-between; gap:12px;
-           margin:0 0 26px; padding:10px 12px 10px 14px; border-radius:20px;
-           background:var(--verre); border:1px solid var(--verre-bord);
-           box-shadow:var(--ombre), inset 0 1.5px 0 var(--verre-haut);
-           backdrop-filter:blur(22px) saturate(1.7); -webkit-backdrop-filter:blur(22px) saturate(1.7); }
-  .profil-carte { display:flex; align-items:center; gap:16px; }
-  .profil-texte { min-width:0; }
-  .profil-nom { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-  .avatar { width:56px; height:56px; border-radius:50%; background:var(--teinte);
-            object-fit:cover; flex-shrink:0; border:1px solid var(--verre-bord); }
-  .nom { font-size:20px; font-weight:700; }
-  .mail { font-size:14px; color:var(--encre-doux); word-break:break-all; }
-  .etiquette { display:inline-block; padding:5px 11px; border-radius:9px; background:var(--teinte);
-               color:var(--accent); font-size:12.5px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; }
-  @media (prefers-color-scheme: dark) { .etiquette { color:var(--accent-clair); } }
-  .grille { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin:16px 0 0; }
-  .stat .val { font-size:28px; font-weight:700; letter-spacing:-.5px; }
-  .stat .lib { font-size:13px; color:var(--encre-doux); }
-  .note { font-size:13.5px; color:var(--encre-doux); margin-top:22px; }
+  /* lignes internes : plus sobres que la carte qui les contient */
+  #listeMatieres { display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; }
+  .matiere { display:flex; gap:11px; align-items:center; padding:11px 12px; border-radius:15px;
+             background:var(--interne); border:1px solid var(--interne-bord);
+             text-decoration:none; color:var(--encre); }
+  .matiere:hover { background:rgba(255,255,255,.42); }
+  @media (prefers-color-scheme: dark) { .matiere:hover { background:rgba(255,255,255,.12); } }
+  .tuile { width:38px; height:38px; flex:none; border-radius:12px; display:grid; place-items:center;
+           color:#fff; font-family:"Bricolage Grotesque",sans-serif; font-weight:700; font-size:16px; }
+  .matiere-texte { flex:1; min-width:0; }
+  .matiere-nom { font-size:13.5px; font-weight:700; }
+  .matiere-etat { font-size:11px; font-weight:500; color:var(--encre-doux); }
 
-  .bloc-cours { margin-top:32px; }
-  .bloc-titre { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; }
-  .sur-titre { font-size:12.5px; font-weight:700; letter-spacing:.7px; text-transform:uppercase; color:var(--encre-doux); }
-  .compteur { font-size:13px; color:var(--encre-doux); }
-  .aide { font-size:13px; color:var(--encre-doux); margin:0 0 12px; }
-  .vide { font-size:14px; color:var(--encre-doux); }
+  .chapitres { grid-column:1 / -1; display:flex; flex-direction:column; gap:7px; }
+  .chapitre-lien { display:block; text-decoration:none; color:var(--encre);
+                   padding:10px 13px; border-radius:13px;
+                   background:var(--interne); border:1px solid var(--interne-bord); }
+  .chapitre-lien:hover { background:rgba(255,255,255,.42); }
+  .chapitre-titre { font-size:13.5px; font-weight:700; }
+  .chapitre-sous { font-size:11px; color:var(--encre-doux); }
 
-  .matiere { margin-bottom:12px; }
-  .matiere-haut { display:flex; align-items:center; gap:12px; }
-  .initiale { display:flex; align-items:center; justify-content:center; width:38px; height:38px;
-              border-radius:12px; background:var(--teinte); color:var(--accent);
-              font-weight:700; font-size:16px; flex-shrink:0; }
-  @media (prefers-color-scheme: dark) { .initiale { color:var(--accent-clair); } }
-  .matiere-nom { font-size:15.5px; font-weight:600; }
-  .matiere-etat { font-size:12.5px; color:var(--encre-doux); }
-  .chapitres { margin:12px 0 0 50px; display:flex; flex-direction:column; gap:8px; }
-  .chapitre-lien { display:block; text-decoration:none; color:var(--encre); transition:transform .12s ease; }
-  .chapitre-lien:hover { transform:translateX(2px); border-color:var(--accent); }
-  .chapitre-titre { font-size:14.5px; font-weight:600; }
-  .chapitre-sous { font-size:12.5px; color:var(--encre-doux); }
+  .aide { font-size:11.5px; color:var(--encre-doux); margin:0 0 10px; }
+  .vide { font-size:12.5px; color:var(--encre-doux); }
+  .cours { display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:13px;
+           background:var(--interne); border:1px solid var(--interne-bord); margin-bottom:7px; cursor:pointer; }
+  .cours input { width:16px; height:16px; margin:2px 0 0; accent-color:var(--accent); flex-shrink:0; }
+  .cours.hors { opacity:.5; }
+  .cours-nom { font-size:12.5px; font-weight:600; }
+  .cours-detail { font-size:10.5px; color:var(--encre-doux); margin-top:1px; }
+  .motif { display:inline-block; margin-top:4px; padding:1px 7px; border-radius:99px;
+           background:rgba(255,255,255,.45); font-size:10px; font-weight:600; color:var(--encre-doux); }
 
-  .cours { display:flex; align-items:flex-start; gap:12px; cursor:pointer; margin-bottom:8px; }
-  .cours input { width:18px; height:18px; margin:2px 0 0; accent-color:var(--accent); flex-shrink:0; }
-  .cours.hors { opacity:.55; }
-  .cours-nom { font-size:15px; font-weight:600; }
-  .cours-detail { font-size:12.5px; color:var(--encre-doux); margin-top:2px; }
-  .motif { display:inline-block; margin-top:5px; padding:2px 8px; border-radius:7px;
-           background:var(--teinte); color:var(--accent); font-size:11.5px; font-weight:600; }
-  @media (prefers-color-scheme: dark) { .motif { color:var(--accent-clair); } }
+  .etiquette { font-weight:700; }
+  .pied-page { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:26px; }
+  .mail { font-size:11.5px; color:var(--encre-doux); }
 
+  @media (max-width:900px) {
+    .deux, .trois { grid-template-columns:1fr; }
+    #listeMatieres { grid-template-columns:1fr; }
+    .nav-haut { display:none; }
+    .salut { font-size:24px; }
+  }
   @media (min-width:900px) {
     #connexion { max-width:980px; padding:0 48px; gap:72px; min-height:100vh; }
     #connexion.actif { display:grid; grid-template-columns:1.05fr .95fr; align-items:center; }
-    #connexion .titre { font-size:54px; letter-spacing:-1.8px; }
-    #connexion .accroche { font-size:17px; max-width:430px; }
-    #connexion .carte { padding:26px; }
+    #connexion .titre { font-size:52px; letter-spacing:-1.7px; }
   }
 </style>
 </head>
@@ -243,7 +220,7 @@
         <path d="M17 22.5l3 3 6.5-6.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span class="marque">Revyzia</span>
-      <span class="version">v1.0</span>
+      <span class="version">v1.2</span>
     </div>
     <div style="margin-top:56px">
       <h1 class="titre">Tes cours,<br>en révisions.</h1>
@@ -268,83 +245,102 @@
       <div class="erreur" id="erreur"></div>
     </div>
     <div class="points">
-      <div class="point"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E7490" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Ta classe et tes groupes reconnus tout seuls</div>
-      <div class="point"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E7490" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Réservé aux élèves et aux profs de l'établissement</div>
-      <div class="point"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E7490" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Gratuit, sans publicité</div>
+      <div class="point-ligne"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E7490" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Ta classe et tes groupes reconnus tout seuls</div>
+      <div class="point-ligne"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E7490" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Réservé aux élèves et aux profs de l'établissement</div>
+      <div class="point-ligne"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E7490" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Gratuit, sans publicité</div>
     </div>
   </div>
 </section>
 
 <section id="tableau" class="ecran">
 
-  <header class="barre">
+  <header class="pilule barre">
     <div class="barre-gauche">
-      <svg width="26" height="26" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <svg width="30" height="30" viewBox="0 0 40 40" fill="none" aria-hidden="true">
         <rect x="6" y="9" width="24" height="17" rx="5" fill="#9AD2DE" transform="rotate(-9 18 17)"/>
         <rect x="10" y="14" width="24" height="17" rx="5" fill="#0E7490"/>
         <path d="M17 22.5l3 3 6.5-6.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <span class="marque" style="font-size:18px">Revyzia</span>
-      <span class="version">v1.0</span>
+      <span class="marque">Revyzia</span>
+      <span class="version">v1.2</span>
     </div>
+    <nav class="nav-haut">
+      <a class="actif" href="index.html">Accueil</a>
+      <a href="ajouter.html">Ajouter un cours</a>
+    </nav>
     <div class="barre-droite">
-      <span class="pastille" title="Jours de suite"><span id="serie">0</span> j</span>
-      <span class="pastille accent"><span id="xp">0</span> XP</span>
-      <img class="avatar-mini" id="avatar" alt="" title="Profil">
+      <span class="pilule jeton"><span id="serie">0</span> j</span>
+      <span class="pilule jeton"><span id="xp">0</span> XP</span>
+      <img class="avatar-mini" id="avatar" alt="">
     </div>
   </header>
 
-  <div class="bonjour">
-    <span class="sur-titre" id="jour"></span>
+  <div class="entete">
     <h1 class="salut">Salut <span id="nom">toi</span></h1>
-    <p class="situation"><span id="classe">?</span> · <span id="groupes">0</span> groupes · <span class="etiquette" id="role">eleve</span></p>
-  </div>
-
-  <a class="seance" id="seance" href="#">
-    <div class="seance-texte">
-      <span class="seance-sur">Ta séance du jour</span>
-      <span class="seance-titre" id="seanceTitre">Rien à réviser pour l'instant</span>
-      <span class="seance-sous" id="seanceSous">Ajoute un cours pour démarrer</span>
-    </div>
-    <span class="seance-fleche">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+    <span class="pilule statut">
+      <span class="point"></span>
+      <span id="classe">Classe à définir</span> · <span id="role">eleve</span> · <span id="groupes">0</span> groupes
     </span>
-  </a>
-
-  <div class="bloc-cours">
-    <div class="bloc-titre">
-      <span class="sur-titre">Tes matières</span>
-      <span class="compteur" id="compteurChapitres"></span>
-    </div>
-    <div id="listeMatieres"></div>
   </div>
 
-  <div class="bloc-cours">
-    <div class="bloc-titre">
-      <span class="sur-titre">Tes cours Classroom</span>
-      <span class="compteur" id="compteurCours"></span>
+  <div class="trois">
+    <div class="carte">
+      <div class="sur-titre">Niveau</div>
+      <div class="chiffre" id="niveau">1 <span class="chiffre-sous" id="niveauNom">Début</span></div>
+      <span class="barre-progres"><span id="barreNiveau" style="width:0%"></span></span>
+      <div class="detail" id="niveauDetail">0 XP</div>
     </div>
-    <p class="aide" id="aideCours">Décoche ce qui n'est pas de cette année. Tu ne le feras qu'une fois.</p>
-    <div id="listeCours"></div>
-    <button class="btn" id="btnEnregistrerCours" style="margin-top:14px; display:none">Enregistrer mes cours</button>
-    <p class="aide" id="etatCours"></p>
+    <div class="carte">
+      <div class="sur-titre">Série</div>
+      <div class="chiffre avec-icone">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#E07A3E" aria-hidden="true"><path d="M12 2c1 4-3 5.5-3 9a3 3 0 006 0c0-1.5-.8-2.6-.8-2.6S18 10 18 13.5A6 6 0 016 13.5C6 7.5 11 6.5 12 2z"/></svg>
+        <span id="serie2">0</span> <span class="chiffre-sous">jours</span>
+      </div>
+      <div class="detail" id="serieDetail">Reviens demain pour la prolonger</div>
+    </div>
+    <div class="carte">
+      <div class="sur-titre">Chapitres</div>
+      <div class="chiffre" id="chapFaits">0</div>
+      <div class="detail" id="chapDetail">sur 0 disponibles</div>
+    </div>
+  </div>
+
+  <div class="deux">
+    <div class="carte">
+      <div class="carte-haut">
+        <h2>Tes matières</h2>
+        <span class="compteur" id="compteurChapitres"></span>
+      </div>
+      <div id="listeMatieres"></div>
+    </div>
+
+    <div class="colonne-droite">
+      <a class="carte seance" id="seance" href="#">
+        <span class="sur-titre clair">Ta séance du jour</span>
+        <span class="seance-titre" id="seanceTitre">Rien à réviser</span>
+        <span class="seance-sous" id="seanceSous">Ajoute un cours pour démarrer</span>
+        <span class="seance-fleche">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+      <div class="carte">
+        <div class="carte-haut">
+          <h2>Classroom</h2>
+          <span class="compteur" id="compteurCours"></span>
+        </div>
+        <p class="aide" id="aideCours">Décoche ce qui n'est pas de cette année.</p>
+        <div id="listeCours"></div>
+        <button class="btn" id="btnEnregistrerCours" style="margin-top:12px; display:none">Enregistrer</button>
+        <p class="aide" id="etatCours"></p>
+      </div>
+    </div>
   </div>
 
   <div class="pied-page">
     <span class="mail" id="mail"></span>
     <button class="btn sobre" id="btnDeconnexion">Déconnexion</button>
   </div>
-
-  <nav class="onglets-bas">
-    <a class="onglet-bas actif" href="index.html">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
-      <span>Accueil</span>
-    </a>
-    <a class="onglet-bas" href="ajouter.html">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-      <span>Ajouter</span>
-    </a>
-  </nav>
 </section>
 
 <script>
@@ -583,6 +579,20 @@
 
   var coursCharges = [];
 
+  var COULEURS = {
+    maths:   ["#0E7490", "#1FA2B8"],
+    francais:["#4F56C8", "#7A80E8"],
+    histoire:["#A0522D", "#C77B4E"],
+    geo:     ["#A0522D", "#C77B4E"],
+    svt:     ["#2A9D4E", "#34C759"],
+    physique:["#0077B6", "#00A8E8"],
+    ses:     ["#8A5A9E", "#B07DC4"],
+    emc:     ["#5A6472", "#7E8795"],
+    anglais: ["#B3433F", "#D9736F"],
+    espagnol:["#C9732B", "#E29A57"],
+    snt:     ["#1F7A6C", "#2FA894"]
+  };
+
   function lireMatieres() {
     var zone = $("listeMatieres");
     Promise.all([
@@ -603,8 +613,7 @@
         return [];
       })
     ]).then(function (resultats) {
-      var manifeste = resultats[0];
-      var publies = resultats[1];
+      var manifeste = resultats[0], publies = resultats[1];
       console.log("[Revyzia] chapitres publies :", publies.length);
 
       publies.forEach(function (c) {
@@ -618,43 +627,55 @@
           m.chapitres.push({ id: c.id, titre: c.titre, sousTitre: c.sousTitre, genere: c.statut === "genere" });
         }
       });
-      var total = 0;
+
+      var total = 0, termines = 0, tous = [];
       zone.innerHTML = "";
+
       manifeste.matieres.forEach(function (m) {
         total += m.chapitres.length;
-        var bloc = document.createElement("div");
-        bloc.className = "carte matiere";
+        var moyenne = m.chapitres.length
+          ? Math.round(m.chapitres.reduce(function (t, ch) { return t + (avancements[ch.id] || 0); }, 0) / m.chapitres.length)
+          : 0;
+        m.chapitres.forEach(function (ch) {
+          if ((avancements[ch.id] || 0) >= 80) termines++;
+          tous.push({ id: ch.id, titre: ch.titre, matiereNom: m.nom });
+        });
 
-        var haut = document.createElement("div");
-        haut.className = "matiere-haut";
-        var ini = document.createElement("span");
-        ini.className = "initiale"; ini.textContent = m.initiale || m.nom.charAt(0);
-        var texte = document.createElement("div");
-        var nom = document.createElement("div");
+        var ligne = document.createElement(m.chapitres.length ? "a" : "div");
+        ligne.className = "matiere";
+        if (m.chapitres.length) {
+          ligne.href = "#";
+          ligne.addEventListener("click", function (e) {
+            e.preventDefault();
+            basculer(m.id);
+          });
+        }
+
+        var couleurs = COULEURS[m.id] || ["#5A6472", "#7E8795"];
+        var tuile = document.createElement("span");
+        tuile.className = "tuile";
+        tuile.style.background = "linear-gradient(135deg," + couleurs[0] + "," + couleurs[1] + ")";
+        tuile.textContent = m.initiale || m.nom.charAt(0);
+
+        var texte = document.createElement("span");
+        texte.className = "matiere-texte";
+        var nom = document.createElement("span");
         nom.className = "matiere-nom"; nom.textContent = m.nom;
-        var faits = m.chapitres.filter(function (ch) { return (avancements[ch.id] || 0) >= 80; }).length;
-        var etat = document.createElement("div");
+        var etat = document.createElement("span");
         etat.className = "matiere-etat";
         etat.textContent = m.chapitres.length
-          ? faits + " sur " + m.chapitres.length + " terminé" + (faits > 1 ? "s" : "")
+          ? m.chapitres.length + " chapitre" + (m.chapitres.length > 1 ? "s" : "") + " · " + moyenne + " %"
           : "Rien encore";
         texte.appendChild(nom); texte.appendChild(etat);
-        haut.appendChild(ini); haut.appendChild(texte);
-        bloc.appendChild(haut);
+
+        ligne.appendChild(tuile); ligne.appendChild(texte);
+        zone.appendChild(ligne);
 
         if (m.chapitres.length) {
-          var barre = document.createElement("span");
-          barre.className = "barre-progres";
-          var rempli = document.createElement("span");
-          var moyenne = Math.round(m.chapitres.reduce(function (t, ch) {
-            return t + (avancements[ch.id] || 0);
-          }, 0) / m.chapitres.length);
-          rempli.style.width = moyenne + "%";
-          barre.appendChild(rempli);
-          texte.appendChild(barre);
-
           var liste = document.createElement("div");
           liste.className = "chapitres";
+          liste.id = "ch-" + m.id;
+          liste.style.display = "none";
           m.chapitres.forEach(function (ch) {
             var a = document.createElement("a");
             a.className = "chapitre-lien";
@@ -662,35 +683,33 @@
             var t = document.createElement("div");
             t.className = "chapitre-titre"; t.textContent = ch.titre;
             a.appendChild(t);
-            if (ch.sousTitre) {
-              var st = document.createElement("div");
-              st.className = "chapitre-sous"; st.textContent = ch.sousTitre;
-              a.appendChild(st);
-            }
-            if (ch.genere) {
-              var g = document.createElement("span");
-              g.className = "motif"; g.textContent = "généré automatiquement";
-              a.appendChild(g);
-            }
+            var sous = document.createElement("div");
+            sous.className = "chapitre-sous";
+            sous.textContent = (ch.sousTitre ? ch.sousTitre + " · " : "")
+              + (avancements[ch.id] || 0) + " %"
+              + (ch.genere ? " · généré automatiquement" : "");
+            a.appendChild(sous);
             liste.appendChild(a);
           });
-          bloc.appendChild(liste);
+          zone.appendChild(liste);
         }
-        zone.appendChild(bloc);
       });
-      $("compteurChapitres").textContent = total + " chapitre" + (total > 1 ? "s" : "") + " en ligne";
 
-      var tous = [];
-      manifeste.matieres.forEach(function (m) {
-        m.chapitres.forEach(function (ch) {
-          tous.push({ id: ch.id, titre: ch.titre, matiereNom: m.nom });
-        });
-      });
+      $("compteurChapitres").textContent = total + " en ligne";
+      $("chapFaits").textContent = termines;
+      $("chapDetail").textContent = "sur " + total + " disponible" + (total > 1 ? "s" : "");
       majSeance(tous, avancements);
     }).catch(function (e) {
       console.error("[Revyzia] manifeste illisible", e);
       zone.innerHTML = '<p class="vide">Aucun chapitre publié pour le moment.</p>';
     });
+  }
+
+  function basculer(idMatiere) {
+    var liste = $("ch-" + idMatiere);
+    if (!liste) return;
+    var ouvert = liste.style.display !== "none";
+    liste.style.display = ouvert ? "none" : "flex";
   }
 
   // XP total calcule depuis la progression, jamais ecrit par le navigateur dans la fiche
@@ -705,6 +724,7 @@
         avancements[d.id] = p.avancement || 0;
       });
       $("xp").textContent = total;
+      majNiveau(total);
       console.log("[Revyzia] progression :", Object.keys(avancements).length, "chapitres,", total, "XP");
       return avancements;
     }).catch(function (e) {
@@ -828,6 +848,9 @@
     }).then(function () { btn.disabled = false; });
   }
 
+  var NIVEAUX = ["Début", "En route", "Bien lance", "Sérieux", "Costaud",
+                 "Redoutable", "Machine", "Cerveau en fusion"];
+
   function afficher(user, fiche) {
     var photo = fiche.photo || user.photoURL || "";
     if (photo) $("avatar").src = photo; else $("avatar").style.display = "none";
@@ -837,14 +860,19 @@
     $("mail").textContent = fiche.email || user.email || "";
     $("role").textContent = fiche.role || "eleve";
     $("serie").textContent = fiche.serie || 0;
+    $("serie2").textContent = fiche.serie || 0;
     $("classe").textContent = fiche.classe || "Classe à définir";
     $("groupes").textContent = (fiche.groupes || []).length;
+  }
 
-    var jours = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
-    var mois = ["janvier", "février", "mars", "avril", "mai", "juin",
-                "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
-    var d = new Date();
-    $("jour").textContent = jours[d.getDay()] + " " + d.getDate() + " " + mois[d.getMonth()];
+  function majNiveau(xp) {
+    var parNiveau = 200;
+    var niveau = Math.floor(xp / parNiveau) + 1;
+    var reste = xp % parNiveau;
+    $("niveau").innerHTML = niveau + ' <span class="chiffre-sous">' +
+      (NIVEAUX[Math.min(niveau - 1, NIVEAUX.length - 1)]) + '</span>';
+    $("barreNiveau").style.width = Math.round(reste / parNiveau * 100) + "%";
+    $("niveauDetail").textContent = xp + " / " + (niveau * parNiveau) + " XP pour le niveau " + (niveau + 1);
   }
 
   // La seance du jour pointe vers le chapitre le moins avance, a defaut le premier.
