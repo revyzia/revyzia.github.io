@@ -549,11 +549,13 @@
     if (!utilisateur || !refProgression) return;
     clearTimeout(enEcriture);
     enEcriture = setTimeout(function () {
+      var total = nombreTotalItems();
       refProgression.set({
         chapitre: chapitre.id,
         matiere: chapitre.matiere,
         itemsFaits: faits,
         xpGagne: totalXp(),
+        avancement: total ? Math.round(Object.keys(faits).length / total * 100) : 0,
         maj: firebase.firestore.FieldValue.serverTimestamp()
       }, { merge: true }).then(function () {
         console.log("[Revyzia] progression enregistree", totalXp(), "XP");

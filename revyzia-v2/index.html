@@ -116,7 +116,49 @@
   .erreur.visible { display:block; }
 
   /* ---------- tableau de bord ---------- */
-  #tableau { max-width:760px; margin:0 auto; padding:26px 20px 70px; }
+  #tableau { max-width:760px; margin:0 auto; padding:18px 20px 110px; }
+
+  .barre-gauche { display:flex; align-items:center; gap:9px; }
+  .barre-droite { display:flex; align-items:center; gap:8px; }
+  .pastille { border-radius:12px; padding:8px 12px; font-size:13px; font-weight:700;
+              background:rgba(127,211,224,.14); border:1px solid var(--verre-bord); }
+  .pastille.accent { background:var(--accent); border-color:transparent; color:#fff; }
+  .avatar-mini { width:34px; height:34px; border-radius:50%; object-fit:cover;
+                 background:var(--teinte); border:1px solid var(--verre-bord); }
+
+  .bonjour { margin:28px 0 18px; }
+  .salut { margin:4px 0 6px; font-size:34px; font-weight:800; letter-spacing:-1px; }
+  .situation { margin:0; font-size:14px; color:var(--encre-doux); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+
+  .seance { display:flex; align-items:center; justify-content:space-between; gap:16px;
+            text-decoration:none; color:#fff; border-radius:24px; padding:22px 24px; margin-bottom:34px;
+            background:linear-gradient(135deg, #0E7490 0%, #0A5568 100%);
+            box-shadow:0 20px 44px rgba(10,85,104,.4); }
+  .seance:hover { transform:translateY(-2px); }
+  .seance-texte { display:flex; flex-direction:column; gap:5px; min-width:0; }
+  .seance-sur { font-size:11.5px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,.72); }
+  .seance-titre { font-family:"Bricolage Grotesque",sans-serif; font-size:22px; font-weight:700; line-height:1.15; }
+  .seance-sous { font-size:13.5px; color:rgba(255,255,255,.78); }
+  .seance-fleche { display:flex; align-items:center; justify-content:center; width:44px; height:44px;
+                   border-radius:50%; background:rgba(255,255,255,.18); flex-shrink:0; }
+
+  .barre-progres { display:block; height:5px; border-radius:3px; background:rgba(127,211,224,.22); margin-top:7px; }
+  .barre-progres span { display:block; height:5px; border-radius:3px; background:var(--accent); }
+  @media (prefers-color-scheme: dark) { .barre-progres span { background:var(--accent-clair); } }
+
+  .pied-page { display:flex; align-items:center; justify-content:space-between; gap:12px;
+               margin-top:38px; padding-top:18px; border-top:1px solid var(--verre-bord); }
+
+  .onglets-bas { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(16px + env(safe-area-inset-bottom,0px));
+                 display:flex; gap:6px; padding:8px; border-radius:22px; z-index:30;
+                 background:var(--verre); border:1px solid var(--verre-bord);
+                 box-shadow:var(--ombre), inset 0 1.5px 0 var(--verre-haut);
+                 backdrop-filter:blur(22px) saturate(1.7); -webkit-backdrop-filter:blur(22px) saturate(1.7); }
+  .onglet-bas { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+                width:84px; height:52px; border-radius:16px; text-decoration:none;
+                color:var(--encre-doux); font-size:11.5px; font-weight:600; }
+  .onglet-bas.actif { color:var(--accent); background:var(--teinte); }
+  @media (prefers-color-scheme: dark) { .onglet-bas.actif { color:var(--accent-clair); } }
   .barre { position:sticky; top:env(safe-area-inset-top,0px); z-index:20;
            display:flex; align-items:center; justify-content:space-between; gap:12px;
            margin:0 0 26px; padding:10px 12px 10px 14px; border-radius:20px;
@@ -201,7 +243,7 @@
         <path d="M17 22.5l3 3 6.5-6.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span class="marque">Revyzia</span>
-      <span class="version">v0.9</span>
+      <span class="version">v1.0</span>
     </div>
     <div style="margin-top:56px">
       <h1 class="titre">Tes cours,<br>en révisions.</h1>
@@ -234,39 +276,40 @@
 </section>
 
 <section id="tableau" class="ecran">
-  <div class="barre">
-    <div class="logo-ligne">
+
+  <header class="barre">
+    <div class="barre-gauche">
       <svg width="26" height="26" viewBox="0 0 40 40" fill="none" aria-hidden="true">
         <rect x="6" y="9" width="24" height="17" rx="5" fill="#9AD2DE" transform="rotate(-9 18 17)"/>
         <rect x="10" y="14" width="24" height="17" rx="5" fill="#0E7490"/>
         <path d="M17 22.5l3 3 6.5-6.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span class="marque" style="font-size:18px">Revyzia</span>
-      <span class="version">v0.9</span>
+      <span class="version">v1.0</span>
     </div>
-    <div style="display:flex; gap:8px">
-      <a class="btn sobre" href="ajouter.html" style="text-decoration:none; display:inline-flex; align-items:center">Ajouter un cours</a>
-      <button class="btn sobre" id="btnDeconnexion">Déconnexion</button>
+    <div class="barre-droite">
+      <span class="pastille" title="Jours de suite"><span id="serie">0</span> j</span>
+      <span class="pastille accent"><span id="xp">0</span> XP</span>
+      <img class="avatar-mini" id="avatar" alt="" title="Profil">
     </div>
+  </header>
+
+  <div class="bonjour">
+    <span class="sur-titre" id="jour"></span>
+    <h1 class="salut">Salut <span id="nom">toi</span></h1>
+    <p class="situation"><span id="classe">?</span> · <span id="groupes">0</span> groupes · <span class="etiquette" id="role">eleve</span></p>
   </div>
 
-  <div class="carte profil-carte">
-    <img class="avatar" id="avatar" alt="">
-    <div class="profil-texte">
-      <div class="profil-nom">
-        <span class="nom" id="nom"></span>
-        <span class="etiquette" id="role"></span>
-      </div>
-      <div class="mail" id="mail"></div>
+  <a class="seance" id="seance" href="#">
+    <div class="seance-texte">
+      <span class="seance-sur">Ta séance du jour</span>
+      <span class="seance-titre" id="seanceTitre">Rien à réviser pour l'instant</span>
+      <span class="seance-sous" id="seanceSous">Ajoute un cours pour démarrer</span>
     </div>
-  </div>
-
-  <div class="grille">
-    <div class="stat"><div class="val" id="xp">0</div><div class="lib">XP</div></div>
-    <div class="stat"><div class="val" id="serie">0</div><div class="lib">Jours de série</div></div>
-    <div class="stat"><div class="val" id="classe">?</div><div class="lib">Classe</div></div>
-    <div class="stat"><div class="val" id="groupes">0</div><div class="lib">Groupes</div></div>
-  </div>
+    <span class="seance-fleche">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+    </span>
+  </a>
 
   <div class="bloc-cours">
     <div class="bloc-titre">
@@ -287,7 +330,21 @@
     <p class="aide" id="etatCours"></p>
   </div>
 
-  <p class="note">Lecture seule pour l'instant. Prochaine étape : relier ces cours à tes groupes et à tes matières.</p>
+  <div class="pied-page">
+    <span class="mail" id="mail"></span>
+    <button class="btn sobre" id="btnDeconnexion">Déconnexion</button>
+  </div>
+
+  <nav class="onglets-bas">
+    <a class="onglet-bas actif" href="index.html">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
+      <span>Accueil</span>
+    </a>
+    <a class="onglet-bas" href="ajouter.html">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+      <span>Ajouter</span>
+    </a>
+  </nav>
 </section>
 
 <script>
@@ -432,8 +489,7 @@
         ficheCourante = fiche;
         afficher(user, fiche);
         montrer("tableau");
-        lireMatieres();
-        lireProgression(user);
+        lireProgression(user).then(lireMatieres);
         lireClassroom();
       }).catch(function (e) {
         console.error("[Revyzia] echec de la fiche utilisateur", e);
@@ -576,16 +632,27 @@
         var texte = document.createElement("div");
         var nom = document.createElement("div");
         nom.className = "matiere-nom"; nom.textContent = m.nom;
+        var faits = m.chapitres.filter(function (ch) { return (avancements[ch.id] || 0) >= 80; }).length;
         var etat = document.createElement("div");
         etat.className = "matiere-etat";
         etat.textContent = m.chapitres.length
-          ? m.chapitres.length + " chapitre" + (m.chapitres.length > 1 ? "s" : "")
+          ? faits + " sur " + m.chapitres.length + " terminé" + (faits > 1 ? "s" : "")
           : "Rien encore";
         texte.appendChild(nom); texte.appendChild(etat);
         haut.appendChild(ini); haut.appendChild(texte);
         bloc.appendChild(haut);
 
         if (m.chapitres.length) {
+          var barre = document.createElement("span");
+          barre.className = "barre-progres";
+          var rempli = document.createElement("span");
+          var moyenne = Math.round(m.chapitres.reduce(function (t, ch) {
+            return t + (avancements[ch.id] || 0);
+          }, 0) / m.chapitres.length);
+          rempli.style.width = moyenne + "%";
+          barre.appendChild(rempli);
+          texte.appendChild(barre);
+
           var liste = document.createElement("div");
           liste.className = "chapitres";
           m.chapitres.forEach(function (ch) {
@@ -612,6 +679,14 @@
         zone.appendChild(bloc);
       });
       $("compteurChapitres").textContent = total + " chapitre" + (total > 1 ? "s" : "") + " en ligne";
+
+      var tous = [];
+      manifeste.matieres.forEach(function (m) {
+        m.chapitres.forEach(function (ch) {
+          tous.push({ id: ch.id, titre: ch.titre, matiereNom: m.nom });
+        });
+      });
+      majSeance(tous, avancements);
     }).catch(function (e) {
       console.error("[Revyzia] manifeste illisible", e);
       zone.innerHTML = '<p class="vide">Aucun chapitre publié pour le moment.</p>';
@@ -619,14 +694,22 @@
   }
 
   // XP total calcule depuis la progression, jamais ecrit par le navigateur dans la fiche
+  var avancements = {};
+
   function lireProgression(user) {
-    db.collection("users").doc(user.uid).collection("progression").get().then(function (lot) {
-      var total = 0, chapitres = 0;
-      lot.forEach(function (d) { total += d.data().xpGagne || 0; chapitres++; });
+    return db.collection("users").doc(user.uid).collection("progression").get().then(function (lot) {
+      var total = 0;
+      lot.forEach(function (d) {
+        var p = d.data();
+        total += p.xpGagne || 0;
+        avancements[d.id] = p.avancement || 0;
+      });
       $("xp").textContent = total;
-      console.log("[Revyzia] progression :", chapitres, "chapitres,", total, "XP");
+      console.log("[Revyzia] progression :", Object.keys(avancements).length, "chapitres,", total, "XP");
+      return avancements;
     }).catch(function (e) {
       console.error("[Revyzia] progression illisible", e);
+      return {};
     });
   }
 
@@ -746,14 +829,43 @@
   }
 
   function afficher(user, fiche) {
-    $("avatar").src = fiche.photo || user.photoURL || "";
-    $("nom").textContent = fiche.nom || user.displayName || "Sans nom";
+    var photo = fiche.photo || user.photoURL || "";
+    if (photo) $("avatar").src = photo; else $("avatar").style.display = "none";
+
+    var complet = fiche.nom || user.displayName || "toi";
+    $("nom").textContent = complet.split(/[\s(]/)[0];
     $("mail").textContent = fiche.email || user.email || "";
     $("role").textContent = fiche.role || "eleve";
-    $("xp").textContent = fiche.xp || 0;
     $("serie").textContent = fiche.serie || 0;
-    $("classe").textContent = fiche.classe || "?";
+    $("classe").textContent = fiche.classe || "Classe à définir";
     $("groupes").textContent = (fiche.groupes || []).length;
+
+    var jours = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+    var mois = ["janvier", "février", "mars", "avril", "mai", "juin",
+                "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+    var d = new Date();
+    $("jour").textContent = jours[d.getDay()] + " " + d.getDate() + " " + mois[d.getMonth()];
+  }
+
+  // La seance du jour pointe vers le chapitre le moins avance, a defaut le premier.
+  function majSeance(chapitres, avancements) {
+    var lien = $("seance");
+    if (!chapitres.length) {
+      lien.href = "ajouter.html";
+      return;
+    }
+    var choisi = null, pire = 101;
+    chapitres.forEach(function (c) {
+      var a = avancements[c.id] || 0;
+      if (a < pire) { pire = a; choisi = c; }
+    });
+    if (!choisi) choisi = chapitres[0];
+
+    lien.href = "chapitre.html?c=" + encodeURIComponent(choisi.id);
+    $("seanceTitre").textContent = choisi.titre;
+    $("seanceSous").textContent = pire > 0
+      ? choisi.matiereNom + ", déjà à " + pire + " %"
+      : choisi.matiereNom + ", pas encore commencé";
   }
 })();
 </script>
