@@ -1,0 +1,17 @@
+name = "revyzia-api"
+main = "src/worker.js"
+compatibility_date = "2026-10-01"
+
+# Le modele est appele par ce binding, cote Cloudflare. Aucune cle dans le code.
+[ai]
+binding = "AI"
+
+# Variables non secretes
+[vars]
+AI_MODELE = "@cf/meta/llama-3.1-8b-instruct"
+
+# Quota par eleve et par jour. Decommente apres avoir cree l'espace KV
+# et colle l'identifiant renvoye par la commande indiquee dans le mode d'emploi.
+# [[kv_namespaces]]
+# binding = "QUOTAS"
+# id = "a_remplacer"
