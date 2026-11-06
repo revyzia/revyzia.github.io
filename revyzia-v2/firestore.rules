@@ -9,8 +9,13 @@ service cloud.firestore {
     function cestMoi(uid) {
       return connecte() && request.auth.uid == uid;
     }
+    function fiche() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function peutPublier() {
+      return connecte() && fiche().role in ['admin', 'prof'];
+    }
 
-    // Fiche utilisateur
     match /users/{uid} {
 
       allow read: if cestMoi(uid);
@@ -21,7 +26,6 @@ service cloud.firestore {
         && request.resource.data.serie == 0
         && request.resource.data.email == request.auth.token.email;
 
-      // role, XP et serie ne bougent jamais depuis le navigateur
       allow update: if cestMoi(uid)
         && request.resource.data.role == resource.data.role
         && request.resource.data.xp == resource.data.xp
@@ -29,10 +33,19 @@ service cloud.firestore {
 
       allow delete: if cestMoi(uid);
 
-      // Progression, un document par chapitre, prive a son proprietaire
       match /progression/{chapitre} {
         allow read, write: if cestMoi(uid);
       }
+    }
+
+    // Chapitres publies : tout le monde lit, seuls admin et prof ecrivent
+    match /chapitres/{id} {
+      allow read: if connecte();
+      allow create, update: if peutPublier()
+        && request.resource.data.titre is string
+        && request.resource.data.sections is list
+        && request.resource.data.sections.size() > 0;
+      allow delete: if peutPublier();
     }
 
     match /{document=**} {
